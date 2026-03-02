@@ -672,7 +672,16 @@
           this.dataCount = dataCount;
         }
         RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
-          return [new RSBlock(26, 16)];
+          // Simple capacity table for QR code type 4, error correction level L
+          // For a more complete implementation, use a proper capacity table
+          var rsBlocks = [];
+          if (typeNumber == 4) {
+            rsBlocks.push(new RSBlock(80, 64));
+          } else {
+            // Fallback for other types
+            rsBlocks.push(new RSBlock(26, 16));
+          }
+          return rsBlocks;
         };
         return RSBlock;
       })();

@@ -458,11 +458,34 @@
     };
     QRBitBuffer.prototype.getBufferByte = function() { return this.buffer.shift() || 0; };
 
-    var QRErrorCorrectLevel = { L:1, M:0, Q:3, H:2 };
-    var QRRSBlock = (function(){ function RSBlock(totalCount, dataCount) { this.totalCount = totalCount; this.dataCount = dataCount; } RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) { return [ new RSBlock(26, 16) ]; }; return RSBlock; })();
-    function getPatternPosition(typeNumber) { return [6, 18]; }
-    function getBCHTypeInfo(data) { return (data << 10) ^ 0x5412; }
-    function getMask(maskPattern, i, j) { return ((i + j) % 2) == 0; }
+    var QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
+    var QRRSBlock = (function() {
+      function RSBlock(totalCount, dataCount) {
+        this.totalCount = totalCount;
+        this.dataCount = dataCount;
+      }
+      RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+        // Simple capacity table for QR code type 4, error correction level L
+        var rsBlocks = [];
+        if (typeNumber == 4) {
+          rsBlocks.push(new RSBlock(80, 64));
+        } else {
+          // Fallback for other types
+          rsBlocks.push(new RSBlock(26, 16));
+        }
+        return rsBlocks;
+      };
+      return RSBlock;
+    })();
+    function getPatternPosition(typeNumber) {
+      return [6, 18];
+    }
+    function getBCHTypeInfo(data) {
+      return (data << 10) ^ 0x5412;
+    }
+    function getMask(maskPattern, i, j) {
+      return (i + j) % 2 == 0;
+    }
 
     window.qrcode = qrcode;
     window.qrcodeFactory = qrcodeFactory;
