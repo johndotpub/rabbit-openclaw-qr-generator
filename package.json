@@ -4,9 +4,17 @@
   "description": "Single-file QR generator for R1 OpenClaw gateway payloads",
   "scripts": {
     "lint:html": "echo 'HTML lint placeholder (files: index.html, localhost.html)'",
-    "lint:js": "echo 'JS lint placeholder (inline scripts in HTML files)'"
+    "lint:js": "echo 'JS lint placeholder (inline scripts in HTML files)'",
+    "test": "echo 'QR generation tests available:' && echo '  1. Visual: Open test-qr.html in a browser' && echo '  2. Automated: GitHub Actions workflow runs on push'"
   },
-  "devDependencies": {},
-  "keywords": ["qr", "openclaw", "r1", "rabbit"],
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  },
+  "keywords": [
+    "qr",
+    "openclaw",
+    "r1",
+    "rabbit"
+  ],
   "license": "Unlicense"
 }

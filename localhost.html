@@ -439,7 +439,26 @@
 
       return {
         addData: function(data) { _dataList.push(data); },
-        make: function() { if (_typeNumber == 0) _typeNumber = 4; makeImpl(false, 0); },
+        make: function() {
+          if (_typeNumber == 0) {
+            // Auto-select QR type based on payload size  
+            // Overhead: mode(4 bits) + length(8 bits) + data(8 bits per char)
+            var totalData = 0;
+            for (var i = 0; i < _dataList.length; i++) {
+              totalData += _dataList[i].length;
+            }
+            var requiredBytes = Math.ceil((12 + totalData * 8) / 8) + 2;
+            // Choose type based on required bytes
+            if (requiredBytes <= 19) _typeNumber = 1;
+            else if (requiredBytes <= 34) _typeNumber = 2;
+            else if (requiredBytes <= 55) _typeNumber = 3;
+            else if (requiredBytes <= 80) _typeNumber = 4;
+            else if (requiredBytes <= 108) _typeNumber = 5;
+            else if (requiredBytes <= 136) _typeNumber = 6;
+            else _typeNumber = 7;
+          }
+          makeImpl(false, 0);
+        },
         getModuleCount: function() { return _moduleCount; },
         isDark: function(r,c) { return _modules[r][c]; }
       };
@@ -465,15 +484,28 @@
         this.dataCount = dataCount;
       }
       RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
-        // Simple capacity table for QR code type 4, error correction level L
+        // Simple capacity table for common QR code types with error correction level L
         // RSBlock(totalCount, dataCount): totalCount = total bytes per block, dataCount = data bytes per block
+        // For most payloads (~100-150 chars), type 5-6 provides sufficient capacity
         var rsBlocks = [];
-        if (typeNumber === 4) {
-          // Type 4 QR code: 80 total bytes per block, 64 data bytes (16 error correction bytes)
-          rsBlocks.push(new RSBlock(80, 64));
+        if (typeNumber === 1) {
+          rsBlocks.push(new RSBlock(26, 19));
+        } else if (typeNumber === 2) {
+          rsBlocks.push(new RSBlock(44, 34));
+        } else if (typeNumber === 3) {
+          rsBlocks.push(new RSBlock(70, 55));
+        } else if (typeNumber === 4) {
+          rsBlocks.push(new RSBlock(100, 80));
+        } else if (typeNumber === 5) {
+          rsBlocks.push(new RSBlock(134, 108));
+        } else if (typeNumber === 6) {
+          rsBlocks.push(new RSBlock(172, 136));
+        } else if (typeNumber >= 7) {
+          // Type 7+: use generous capacity for large payloads
+          rsBlocks.push(new RSBlock(196, 156));
         } else {
-          // Fallback for other types
-          rsBlocks.push(new RSBlock(26, 16));
+          // Default fallback
+          rsBlocks.push(new RSBlock(100, 80));
         }
         return rsBlocks;
       };
