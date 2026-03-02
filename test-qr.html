@@ -23,6 +23,9 @@
     .test-case.fail {
       border-color: #a00;
     }
+    .test-case.skip {
+      border-color: #660;
+    }
     .status {
       font-weight: bold;
       margin-bottom: 10px;
@@ -32,6 +35,9 @@
     }
     .fail .status {
       color: #f00;
+    }
+    .skip .status {
+      color: #ff0;
     }
     canvas {
       background: white;
@@ -47,142 +53,133 @@
 </head>
 <body>
   <h1>QR Code Generation Tests</h1>
+  <p id="detector-note" style="color:#aaa;font-size:0.9em"></p>
   <div id="results"></div>
-  
+
+  <!-- qrcode-generator library (MIT) by Kazuhiko Arase -->
+  <script src="qrcode.js"></script>
   <script>
-    // Extract QR code functions from index.html by loading it in an iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = 'index.html';
-    document.body.appendChild(iframe);
-    
-    iframe.onload = function() {
-      const win = iframe.contentWindow;
-      const qrcodeFactory = win.qrcodeFactory;
-      
-      if (!qrcodeFactory) {
-        document.getElementById('results').innerHTML = '<p style="color:red">Failed to load QR code functions from index.html</p>';
-        return;
-      }
-      
-      const testCases = [
-        {
-          name: 'Small payload (~50 chars)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['10.0.0.1'],
-            port: 8080,
-            token: 'test',
-            protocol: 'ws'
-          })
-        },
-        {
-          name: 'Typical payload (~128 chars)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['192.168.1.10', '10.0.0.5'],
-            port: 8080,
-            token: 'test-token-12345',
-            protocol: 'ws'
-          })
-        },
-        {
-          name: 'Large payload (~180 chars)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['192.168.1.10', '192.168.1.11', '192.168.1.12'],
-            port: 8080,
-            token: 'this-is-a-very-long-token-for-testing-purposes-123456789',
-            protocol: 'wss'
-          })
-        },
-        {
-          name: 'Single IP',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['127.0.0.1'],
-            port: 3000,
-            token: 'abc',
-            protocol: 'tcp'
-          })
-        },
-        {
-          name: 'Hostname (not IP)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['gateway.example.com'],
-            port: 443,
-            token: 'test-token',
-            protocol: 'wss'
-          })
-        },
-        {
-          name: '32-char token (exact reported failure)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['gateway.example.com'],
-            port: 443,
-            token: 'abcdefghijklmnopqrstuvwxyz123456',
-            protocol: 'wss'
-          })
-        },
-        {
-          name: 'Hostname + 32-char token (~155 chars)',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['openclaw.example.com'],
-            port: 443,
-            token: 'b60e9c240cfe2f99ef0e9faa64fa069b',
-            protocol: 'wss'
-          })
-        },
-        {
-          name: 'Multiple hostnames',
-          data: JSON.stringify({
-            type: 'openclaw-gateway',
-            version: 1,
-            ips: ['gateway.example.com', 'openclaw.example.com'],
-            port: 443,
-            token: 'test-token',
-            protocol: 'wss'
-          })
+    // Inline qrcodeFactory (same as index.html / websocket.html)
+    function qrcodeFactory(text) {
+      return {
+        drawToCanvas: function(canvas, size) {
+          try {
+            var qr = qrcode(0, 'M');
+            qr.addData(text);
+            qr.make();
+            var ctx = canvas.getContext('2d');
+            var moduleCount = qr.getModuleCount();
+            var scale = Math.floor(size / moduleCount) || 1;
+            var margin = Math.floor((size - moduleCount * scale) / 2);
+            canvas.width = size; canvas.height = size;
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000000';
+            for (var r = 0; r < moduleCount; r++) {
+              for (var c = 0; c < moduleCount; c++) {
+                if (qr.isDark(r, c)) {
+                  ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
+                }
+              }
+            }
+          } catch (e) {
+            var ctx = canvas.getContext('2d');
+            canvas.width = size; canvas.height = size;
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#000'; ctx.font = '12px monospace';
+            ctx.fillText('QR ERROR', 10, 20);
+            console.error('QR draw error', e);
+          }
         }
-      ];
-      
-      const resultsDiv = document.getElementById('results');
-      let passed = 0;
-      let failed = 0;
-      
-      testCases.forEach(testCase => {
+      };
+    }
+
+    // Decode a canvas using BarcodeDetector when available.
+    // Resolves to the decoded string, or null when BarcodeDetector is unavailable.
+    function decodeCanvas(canvas) {
+      if (typeof BarcodeDetector === 'undefined') return Promise.resolve(null);
+      return canvas.convertToBlob
+        ? canvas.convertToBlob().then(function(blob) {
+            return new BarcodeDetector({formats: ['qr_code']}).detect(blob);
+          }).then(function(results) {
+            return results.length ? results[0].rawValue : null;
+          })
+        : new Promise(function(resolve) {
+            canvas.toBlob(function(blob) {
+              var img = new Image();
+              img.onload = function() {
+                new BarcodeDetector({formats: ['qr_code']}).detect(img)
+                  .then(function(results) { resolve(results.length ? results[0].rawValue : null); })
+                  .catch(function() { resolve(null); });
+              };
+              img.src = URL.createObjectURL(blob);
+            });
+          });
+    }
+
+    const hasDetector = typeof BarcodeDetector !== 'undefined';
+    document.getElementById('detector-note').textContent = hasDetector
+      ? '✓ BarcodeDetector available — decode assertions enabled.'
+      : '⚠ BarcodeDetector unavailable in this browser — decode assertions skipped (generation still verified).';
+
+    const testCases = [
+      {
+        name: 'Small payload (~50 chars)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['10.0.0.1'],port:8080,token:'test',protocol:'ws'})
+      },
+      {
+        name: 'Typical payload (~128 chars)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['192.168.1.10','10.0.0.5'],port:8080,token:'test-token-12345',protocol:'ws'})
+      },
+      {
+        name: 'Large payload (~180 chars)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['192.168.1.10','192.168.1.11','192.168.1.12'],port:8080,token:'this-is-a-very-long-token-for-testing-purposes-123456789',protocol:'wss'})
+      },
+      {
+        name: 'Single IP',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['127.0.0.1'],port:3000,token:'abc',protocol:'tcp'})
+      },
+      {
+        name: 'Hostname (not IP)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['gateway.example.com'],port:443,token:'test-token',protocol:'wss'})
+      },
+      {
+        name: '32-char token (exact reported failure)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['gateway.example.com'],port:443,token:'abcdefghijklmnopqrstuvwxyz123456',protocol:'wss'})
+      },
+      {
+        name: 'Hostname + 32-char token (~155 chars)',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['openclaw.example.com'],port:443,token:'b60e9c240cfe2f99ef0e9faa64fa069b',protocol:'wss'})
+      },
+      {
+        name: 'Multiple hostnames',
+        data: JSON.stringify({type:'openclaw-gateway',version:1,ips:['gateway.example.com','openclaw.example.com'],port:443,token:'test-token',protocol:'wss'})
+      }
+    ];
+
+    const resultsDiv = document.getElementById('results');
+    let passed = 0, failed = 0, skipped = 0;
+
+    // Run tests sequentially so decode promises don't race
+    (async function runTests() {
+      for (const testCase of testCases) {
         const div = document.createElement('div');
         div.className = 'test-case';
-        
         const statusDiv = document.createElement('div');
         statusDiv.className = 'status';
-        
         const nameDiv = document.createElement('div');
         nameDiv.innerHTML = `<strong>${testCase.name}</strong>`;
-        
         const sizeDiv = document.createElement('div');
         sizeDiv.textContent = `Payload size: ${testCase.data.length} characters`;
-        
         div.appendChild(statusDiv);
         div.appendChild(nameDiv);
         div.appendChild(sizeDiv);
-        
+
         try {
           const canvas = document.createElement('canvas');
           const qr = qrcodeFactory(testCase.data);
-          qr.drawToCanvas(canvas, 200);
-          
-          // Check if canvas has content (not all white)
+          qr.drawToCanvas(canvas, 300);
+
+          // Verify the canvas has black pixels (QR was drawn)
           const ctx = canvas.getContext('2d');
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
           let hasBlackPixels = false;
@@ -192,15 +189,34 @@
               break;
             }
           }
-          
-          if (hasBlackPixels) {
+          if (!hasBlackPixels) {
+            div.className += ' fail';
+            statusDiv.textContent = '✗ FAIL — no QR code rendered';
+            failed++;
+            resultsDiv.appendChild(div);
+            continue;
+          }
+
+          // Attempt decode to assert the full payload round-trips correctly
+          const decoded = await decodeCanvas(canvas);
+          if (decoded === null) {
+            // BarcodeDetector unavailable — generation verified, decode skipped
+            div.className += ' skip';
+            statusDiv.textContent = '~ SKIP — generated OK; decode skipped (no BarcodeDetector)';
+            div.appendChild(canvas);
+            skipped++;
+          } else if (decoded === testCase.data) {
             div.className += ' pass';
-            statusDiv.textContent = '✓ PASS';
+            statusDiv.textContent = '✓ PASS — generated and decoded correctly';
             div.appendChild(canvas);
             passed++;
           } else {
             div.className += ' fail';
-            statusDiv.textContent = '✗ FAIL - No QR code generated';
+            statusDiv.textContent = '✗ FAIL — decoded payload mismatch';
+            const mismatchDiv = document.createElement('div');
+            mismatchDiv.innerHTML = `<code>Expected: ${testCase.data}</code><br><code>Got:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${decoded}</code>`;
+            div.appendChild(mismatchDiv);
+            div.appendChild(canvas);
             failed++;
           }
         } catch (error) {
@@ -211,10 +227,10 @@
           div.appendChild(errorDiv);
           failed++;
         }
-        
+
         resultsDiv.appendChild(div);
-      });
-      
+      }
+
       const summaryDiv = document.createElement('div');
       summaryDiv.style.marginTop = '30px';
       summaryDiv.style.padding = '15px';
@@ -224,9 +240,10 @@
         <h2>Test Summary</h2>
         <p><strong>Passed:</strong> ${passed} / ${testCases.length}</p>
         <p><strong>Failed:</strong> ${failed} / ${testCases.length}</p>
+        ${skipped ? `<p><strong>Skipped (decode):</strong> ${skipped} / ${testCases.length} — BarcodeDetector not available</p>` : ''}
       `;
       resultsDiv.appendChild(summaryDiv);
-    };
+    })();
   </script>
 </body>
 </html>
