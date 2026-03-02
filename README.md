@@ -8,7 +8,7 @@
 
 > 🔗 **Live site:** [claw.rly.wtf](https://claw.rly.wtf)
 
-A small, single-file tool that generates an **OpenClaw gateway payload** as:
+A small, efficient tool that generates an **OpenClaw gateway payload** as:
 
 - 📋 a **JSON preview** (copy/paste)
 - 📱 a **QR code** (scan to import)
