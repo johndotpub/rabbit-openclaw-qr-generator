@@ -80,7 +80,7 @@ Field notes:
 - `version`: payload schema version (currently `1`)
 - Tokens up to 64+ characters are supported with the corrected QR encoder
 
-> 💡 **Tip:** If the QR code is not recognized by the R1, ensure you are using error correction level M or H.
+> 💡 **Tip:** This generator uses QR error correction level **M**. If the QR code is not recognized by the R1, try reducing the token length, increasing the on-screen QR size/brightness, or printing with higher contrast.
 
 ---
 
