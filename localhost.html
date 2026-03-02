@@ -5,63 +5,256 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>R1 OpenClaw QR — Read Only</title>
 
-  <!-- Meta CSP for GitHub Pages -->
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'none'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; style-src 'self' 'unsafe-inline';">
+  <!-- Meta CSP for GitHub Pages (strict: no network) -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
+  />
 
   <style>
-    :root{--muted:#9aa4b2;--accent:#7dd3fc}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#071025;color:#e6eef6}
-    .wrap{max-width:900px;margin:28px auto;padding:18px}
-    h1{font-size:20px;margin:0}
-    .lead{color:var(--muted);font-size:13px;margin-top:6px}
-    .card{background:rgba(255,255,255,0.02);padding:16px;border-radius:10px}
-    label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
-    input,textarea,select,button{font-size:14px}
-    input,textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;box-sizing:border-box}
-    textarea{min-height:80px;resize:vertical}
-    .row{display:flex;gap:10px}
-    .row > *{flex:1}
-    button{background:linear-gradient(90deg,var(--accent),#60a5fa);border:0;padding:10px 12px;border-radius:8px;color:#042028;cursor:pointer}
-    pre.json{background:#02111a;padding:12px;border-radius:8px;overflow:auto;color:#bfeafc}
-    .small{font-size:12px;color:var(--muted)}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    :root {
+      --muted: #9aa4b2;
+      --accent: #7dd3fc;
+      --accent-hover: #38bdf8;
+      --danger: #fb7185;
+      --bg-primary: #071025;
+      --bg-card: rgba(255, 255, 255, 0.02);
+      --bg-card-hover: rgba(255, 255, 255, 0.04);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-focus: rgba(125, 211, 252, 0.4);
+      --text-primary: #e6eef6;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Inter, system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 28px auto;
+      padding: 18px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      transition: background 0.2s ease;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--border-focus);
+    }
+
+    input:hover,
+    textarea:hover,
+    select:hover {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    button {
+      background: linear-gradient(90deg, var(--accent), #60a5fa);
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: #042028;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.1s ease, opacity 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--border-focus);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    pre.json {
+      background: #02111a;
+      padding: 14px;
+      border-radius: 8px;
+      overflow: auto;
+      color: #bfeafc;
+      font-size: 12px;
+      line-height: 1.5;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>R1 OpenClaw QR — Read Only</h1>
-    <div class="lead">Generates gateway JSON and QR locally. This read-only build cannot send tokens anywhere and is safe for public hosting.</div>
+    <div class="lead">
+      Generates gateway JSON and QR locally. This read-only build cannot send tokens anywhere and is
+      safe for public hosting.
+    </div>
 
-    <div style="margin-top:18px" class="card">
-      <label>IPs comma separated</label>
-      <input id="ips" type="text" placeholder="192.168.1.10,10.0.0.5" />
-      <label style="margin-top:8px">Port</label>
-      <input id="port" type="number" value="8080" />
-      <label style="margin-top:8px">Protocol</label>
-      <select id="protocol"><option>ws</option><option>wss</option><option>tcp</option></select>
-      <label style="margin-top:8px">Token</label>
-      <input id="token" type="text" placeholder="secret-token" />
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button id="buildBtn">Build QR</button>
+    <div style="margin-top: 20px;" class="card">
+      <label for="ips">IPs (comma separated)</label>
+      <input
+        id="ips"
+        type="text"
+        placeholder="192.168.1.10,10.0.0.5"
+        autocomplete="off"
+      />
+
+      <label for="port" style="margin-top: 12px;">Port</label>
+      <input id="port" type="number" value="8080" autocomplete="off" />
+
+      <label for="protocol" style="margin-top: 12px;">Protocol</label>
+      <select id="protocol">
+        <option value="ws">ws</option>
+        <option value="wss">wss</option>
+        <option value="tcp">tcp</option>
+      </select>
+
+      <label for="token" style="margin-top: 12px;">Token</label>
+      <input
+        id="token"
+        type="text"
+        placeholder="secret-token"
+        autocomplete="off"
+      />
+
+      <div style="display: flex; gap: 10px; margin-top: 14px;">
+        <button id="buildBtn" type="button">Build QR</button>
         <button id="copyJsonBtn" type="button">Copy JSON</button>
         <button id="downloadQrBtn" type="button">Download QR</button>
       </div>
 
-      <div style="margin-top:12px">
-        <label>JSON Preview</label>
+      <div style="margin-top: 16px;">
+        <label for="jsonPreview">JSON Preview</label>
         <pre id="jsonPreview" class="json"></pre>
       </div>
 
-      <div style="margin-top:12px">
-        <label>QR</label>
-        <div id="qrcode" style="background:white;padding:8px;border-radius:8px;display:inline-block"></div>
+      <div style="margin-top: 14px;">
+        <label>QR Code</label>
+        <div
+          id="qrcode"
+          style="background: white; padding: 10px; border-radius: 8px; display: inline-block;"
+        ></div>
       </div>
 
-      <div style="margin-top:12px;color:#ffd6d6" class="small"><strong>Warning:</strong> The token is embedded in the QR. Do not share screenshots or the QR publicly.</div>
+      <div style="margin-top: 14px;" class="danger small">
+        <strong>Warning:</strong> The token is embedded in the QR. Do not share screenshots or the
+        QR publicly.
+      </div>
     </div>
 
-    <footer style="margin-top:14px" class="small">Read-only single-file build. Safe for GitHub Pages.</footer>
+    <footer style="margin-top: 20px;" class="small">
+      Read-only single-file build. Safe for GitHub Pages.
+    </footer>
   </div>
 
   <!-- Embedded minimal QR encoder (same compact encoder as singlefile) -->
@@ -278,75 +471,111 @@
 
   <!-- App logic for read-only build -->
   <script>
-  (function(){
-    const ipsEl = document.getElementById('ips');
-    const portEl = document.getElementById('port');
-    const protoEl = document.getElementById('protocol');
-    const tokenEl = document.getElementById('token');
-    const buildBtn = document.getElementById('buildBtn');
-    const jsonPreview = document.getElementById('jsonPreview');
-    const qrcodeEl = document.getElementById('qrcode');
-    const copyJsonBtn = document.getElementById('copyJsonBtn');
-    const downloadQrBtn = document.getElementById('downloadQrBtn');
+    (function() {
+      const ipsEl = document.getElementById('ips');
+      const portEl = document.getElementById('port');
+      const protoEl = document.getElementById('protocol');
+      const tokenEl = document.getElementById('token');
+      const buildBtn = document.getElementById('buildBtn');
+      const jsonPreview = document.getElementById('jsonPreview');
+      const qrcodeEl = document.getElementById('qrcode');
+      const copyJsonBtn = document.getElementById('copyJsonBtn');
+      const downloadQrBtn = document.getElementById('downloadQrBtn');
 
-    // Build payload from inputs
-    function buildPayload(){
-      const ips = ipsEl.value.trim() ? ipsEl.value.split(',').map(s=>s.trim()).filter(Boolean) : [];
-      const port = Number(portEl.value) || 0;
-      const protocol = protoEl.value || 'ws';
-      const token = tokenEl.value || '';
-      return { type: "openclaw-gateway", version: 1, ips, port, token, protocol };
-    }
+      // Build payload from inputs
+      function buildPayload() {
+        const ips = ipsEl.value.trim()
+          ? ipsEl.value
+              .split(',')
+              .map(function(s) {
+                return s.trim();
+              })
+              .filter(Boolean)
+          : [];
+        const port = Number(portEl.value) || 0;
+        const protocol = protoEl.value || 'ws';
+        const token = tokenEl.value || '';
+        return {
+          type: 'openclaw-gateway',
+          version: 1,
+          ips: ips,
+          port: port,
+          token: token,
+          protocol: protocol
+        };
+      }
 
-    // Render JSON preview
-    function renderPreview(payload){
-      jsonPreview.textContent = JSON.stringify(payload, null, 2);
-    }
+      // Render JSON preview
+      function renderPreview(payload) {
+        jsonPreview.textContent = JSON.stringify(payload, null, 2);
+      }
 
-    // Render QR using embedded encoder and convert to image for download
-    function renderQr(payload){
-      qrcodeEl.innerHTML = '';
-      // create a canvas and draw QR then append as image
-      const canvas = document.createElement('canvas');
-      canvas.style.display = 'block';
-      canvas.width = 300; canvas.height = 300;
-      const q = qrcodeFactory(JSON.stringify(payload));
-      q.drawToCanvas(canvas, 300);
-      // convert to image for consistent download behavior
-      const img = new Image();
-      img.src = canvas.toDataURL('image/png');
-      img.alt = 'QR';
-      img.style.width = '300px';
-      img.style.height = '300px';
-      qrcodeEl.appendChild(img);
-    }
+      // Render QR using embedded encoder and convert to image for download
+      function renderQr(payload) {
+        qrcodeEl.innerHTML = '';
+        // create a canvas and draw QR then append as image
+        const canvas = document.createElement('canvas');
+        canvas.style.display = 'block';
+        canvas.width = 300;
+        canvas.height = 300;
+        const q = qrcodeFactory(JSON.stringify(payload));
+        q.drawToCanvas(canvas, 300);
+        // convert to image for consistent download behavior
+        const img = new Image();
+        img.src = canvas.toDataURL('image/png');
+        img.alt = 'QR Code';
+        img.style.width = '300px';
+        img.style.height = '300px';
+        qrcodeEl.appendChild(img);
+      }
 
-    // Build button
-    buildBtn.addEventListener('click', ()=>{
-      const p = buildPayload();
-      renderPreview(p);
-      renderQr(p);
-    });
+      // Build button
+      buildBtn.addEventListener('click', function() {
+        const p = buildPayload();
+        renderPreview(p);
+        renderQr(p);
+      });
 
-    // Copy JSON
-    copyJsonBtn.addEventListener('click', async ()=>{
-      try { await navigator.clipboard.writeText(jsonPreview.textContent); alert('JSON copied'); } catch(e){ alert('Copy failed'); }
-    });
+      // Copy JSON
+      copyJsonBtn.addEventListener('click', async function() {
+        try {
+          await navigator.clipboard.writeText(jsonPreview.textContent);
+          alert('JSON copied to clipboard');
+        } catch (e) {
+          alert('Copy failed');
+        }
+      });
 
-    // Download QR
-    downloadQrBtn.addEventListener('click', ()=>{
-      const img = qrcodeEl.querySelector('img');
-      if (!img) { alert('Build first'); return; }
-      const a = document.createElement('a'); a.href = img.src; a.download = 'openclaw-gateway.png'; document.body.appendChild(a); a.click(); a.remove();
-    });
+      // Download QR
+      downloadQrBtn.addEventListener('click', function() {
+        const img = qrcodeEl.querySelector('img');
+        if (!img) {
+          alert('Please build the QR code first');
+          return;
+        }
+        const a = document.createElement('a');
+        a.href = img.src;
+        a.download = 'openclaw-gateway.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
 
-    // Initialize
-    (function init(){
-      const initial = buildPayload();
-      renderPreview(initial);
-      renderQr(initial);
+      // Initialize
+      (function init() {
+        const initial = buildPayload();
+        renderPreview(initial);
+        renderQr(initial);
+      })();
+
+      // Accessibility: keyboard shortcut to build (Ctrl/Cmd+B)
+      window.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          buildBtn.click();
+        }
+      });
     })();
-  })();
   </script>
 </body>
 </html>

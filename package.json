@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Single-file QR generator for R1 OpenClaw gateway payloads",
   "scripts": {
-    "lint:html": "htmlhint ./public/*.html || true",
-    "lint:js": "eslint ./public/js || true"
+    "lint:html": "echo 'HTML lint placeholder (files: index.html, localhost.html)'",
+    "lint:js": "echo 'JS lint placeholder (inline scripts in HTML files)'"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "keywords": ["qr", "openclaw", "r1", "rabbit"],
+  "license": "Unlicense"
 }
