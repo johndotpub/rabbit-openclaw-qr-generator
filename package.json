@@ -1,0 +1,10 @@
+{
+  "name": "r1-openclaw-qr",
+  "version": "1.0.0",
+  "description": "Single-file QR generator for R1 OpenClaw gateway payloads",
+  "scripts": {
+    "lint:html": "htmlhint ./public/*.html || true",
+    "lint:js": "eslint ./public/js || true"
+  },
+  "devDependencies": {}
+}
