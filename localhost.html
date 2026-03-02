@@ -442,7 +442,11 @@
         make: function() {
           if (_typeNumber == 0) {
             // Auto-select QR type based on payload size  
-            // Overhead: mode(4 bits) + length(8 bits) + data(8 bits per char)
+            // Calculate required bytes including overhead:
+            // - Mode indicator: 4 bits
+            // - Character count indicator: 8 bits (for versions 1-9 in byte mode)
+            // - Data: 8 bits per byte
+            // Total bits = 12 + (totalData * 8), then convert to bytes with safety margin
             var totalData = 0;
             for (var i = 0; i < _dataList.length; i++) {
               totalData += _dataList[i].length;
