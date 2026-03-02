@@ -66,25 +66,28 @@ The generator outputs JSON like:
 {
   "type": "openclaw-gateway",
   "version": 1,
-  "ips": ["192.168.1.10", "10.0.0.5"],
-  "port": 8080,
+  "ips": ["192.168.1.10", "gateway.example.com"],
+  "port": 443,
   "token": "your-token-here",
-  "protocol": "ws"
+  "protocol": "wss"
 }
 ```
 
 Field notes:
 
-- `ips`: entered as comma-separated values in the UI; output is an array of strings
+- `ips`: entered as comma-separated values in the UI; output is an array of strings — supports both IP addresses (e.g., `"192.168.1.10"`) and hostnames (e.g., `"gateway.example.com"`)
 - `protocol`: `ws`, `wss`, or `tcp` (depending on your environment)
 - `version`: payload schema version (currently `1`)
+- Tokens up to 64+ characters are supported with the corrected QR encoder
+
+> 💡 **Tip:** This generator uses QR error correction level **M**. If the QR code is not recognized by the R1, try reducing the token length, increasing the on-screen QR size/brightness, or printing with higher contrast.
 
 ---
 
 ## 🚀 How to use
 
 1. Open **`index.html`** (recommended) or **`websocket.html`** (advanced) in a modern browser
-2. Enter IP(s), port, protocol, and token
+2. Enter IP(s) or hostname(s), port, protocol, and token
 3. Click **🔨 Build QR**
 4. Scan the QR to import, or click **📋 Copy JSON**
 5. Optional: click **💾 Download QR** to save a PNG
@@ -107,8 +110,8 @@ Built-in guardrails:
 
 ## Project Availability
 
-- Websocket Testing Enabled:  https://claw.rly.wtf
-- Websocket Testing Disabled: https://claw.rly.wtf/localhost.html
+- WebSocket Testing Disabled (recommended): https://claw.rly.wtf
+- WebSocket Testing Enabled (advanced): https://claw.rly.wtf/websocket.html
 
 
 ---
@@ -125,3 +128,31 @@ The UI uses a **Dracula**-inspired color scheme:
 ## 📜 License
 
 Released under **The Unlicense** (public domain).
+
+### Third-Party Notices
+
+This project embeds [`qrcode-generator`](https://github.com/kazuhikoarase/qrcode-generator) inline (no CDN). It is used under the MIT License:
+
+```
+MIT License
+
+Copyright (c) 2009 Kazuhiko Arase
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
