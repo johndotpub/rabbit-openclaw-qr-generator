@@ -99,6 +99,15 @@
       letter-spacing: 0.01em;
     }
 
+    .section-label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.01em;
+    }
+
     input,
     textarea,
     select,
@@ -372,7 +381,7 @@
         </form>
 
         <section style="margin-top: 16px;">
-          <label for="jsonPreview">JSON Preview</label>
+          <div class="section-label">JSON Preview</div>
           <pre id="jsonPreview" class="json" aria-live="polite">{ "type": "openclaw-gateway", "version": 1, "ips": [], "port": 8080, "token": "", "protocol": "ws" }</pre>
         </section>
 
@@ -703,6 +712,10 @@
         this.length++;
       };
       QRBitBuffer.prototype.getBufferByte = function() {
+        // Decrement length by 8 bits when consuming a byte
+        if (this.length >= 8) {
+          this.length -= 8;
+        }
         return this.buffer.shift() || 0;
       };
 
