@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>R1 OpenClaw QR</title>
+  <title>🐰 R1 OpenClaw QR 🦞</title>
 
   <!-- CSP will be injected dynamically based on location.protocol -->
   <!-- Note: This script runs before CSP is active. The tradeoff is acceptable because:
@@ -27,16 +27,21 @@
 
   <style>
     :root {
-      --muted: #9aa4b2;
-      --accent: #7dd3fc;
-      --accent-hover: #38bdf8;
-      --danger: #fb7185;
-      --bg-primary: #071025;
-      --bg-card: rgba(255, 255, 255, 0.02);
-      --bg-card-hover: rgba(255, 255, 255, 0.04);
-      --border-subtle: rgba(255, 255, 255, 0.04);
-      --border-focus: rgba(125, 211, 252, 0.4);
-      --text-primary: #e6eef6;
+      --muted: #6272a4;
+      --accent: #bd93f9;
+      --accent-hover: #ff79c6;
+      --danger: #ff5555;
+      --bg-primary: #282a36;
+      --bg-card: #44475a;
+      --bg-card-hover: rgba(68, 71, 90, 0.8);
+      --border-subtle: rgba(98, 114, 164, 0.3);
+      --border-focus: rgba(189, 147, 249, 0.4);
+      --text-primary: #f8f8f2;
+      --green: #50fa7b;
+      --cyan: #8be9fd;
+      --orange: #ffb86c;
+      --yellow: #f1fa8c;
+      --pink: #ff79c6;
     }
 
     *,
@@ -131,7 +136,7 @@
     input:hover,
     textarea:hover,
     select:hover {
-      border-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(98, 114, 164, 0.5);
     }
 
     textarea {
@@ -149,11 +154,11 @@
     }
 
     button {
-      background: linear-gradient(90deg, var(--accent), #60a5fa);
+      background: linear-gradient(90deg, var(--accent), var(--pink));
       border: 0;
       padding: 10px 16px;
       border-radius: 8px;
-      color: #042028;
+      color: #282a36;
       font-weight: 500;
       cursor: pointer;
       transition: transform 0.1s ease, opacity 0.2s ease;
@@ -180,36 +185,36 @@
 
     button.ghost {
       background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--accent);
+      border: 1px solid rgba(98, 114, 164, 0.4);
+      color: var(--cyan);
     }
 
     button.ghost:hover:not(:disabled) {
-      background: rgba(125, 211, 252, 0.05);
-      border-color: var(--accent);
+      background: rgba(139, 233, 253, 0.05);
+      border-color: var(--cyan);
     }
 
     pre.json {
-      background: #02111a;
+      background: #21222c;
       padding: 14px;
       border-radius: 8px;
       overflow: auto;
-      color: #bfeafc;
+      color: var(--green);
       font-size: 12px;
       line-height: 1.5;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(98, 114, 164, 0.2);
     }
 
     .log {
-      background: #02111a;
+      background: #21222c;
       padding: 12px;
       border-radius: 8px;
-      color: #9fb7c6;
+      color: var(--cyan);
       max-height: 160px;
       overflow: auto;
       font-size: 12px;
       line-height: 1.5;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(98, 114, 164, 0.2);
     }
 
     .small {
@@ -223,21 +228,21 @@
     }
 
     .banner {
-      background: #2b2b2b;
+      background: rgba(255, 85, 85, 0.1);
       padding: 12px 14px;
       border-radius: 8px;
       margin-bottom: 16px;
-      color: #ffd6d6;
-      border: 1px solid rgba(251, 113, 133, 0.2);
+      color: var(--orange);
+      border: 1px solid rgba(255, 85, 85, 0.3);
     }
 
     .info-banner {
-      background: rgba(125, 211, 252, 0.15);
+      background: rgba(139, 233, 253, 0.1);
       padding: 12px 14px;
       border-radius: 8px;
       margin-bottom: 16px;
-      color: #bfeafc;
-      border: 1px solid rgba(125, 211, 252, 0.3);
+      color: var(--cyan);
+      border: 1px solid rgba(139, 233, 253, 0.3);
       font-weight: 500;
     }
 
@@ -248,11 +253,12 @@
     }
 
     code {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(189, 147, 249, 0.1);
       padding: 2px 6px;
       border-radius: 4px;
       font-family: 'Monaco', 'Courier New', monospace;
       font-size: 12px;
+      color: var(--green);
     }
 
     @media (max-width: 900px) {
@@ -264,20 +270,22 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>R1 OpenClaw QR</h1>
+    <h1>🐰 R1 OpenClaw QR 🦞</h1>
     <div class="lead">
-      Generates gateway JSON and QR locally. WebSocket test is gated and requires explicit confirmation.
+      Generates gateway JSON and QR locally. WebSocket test is gated and requires explicit confirmation.<br>
+      Based on the <a href="https://forum.rabbitcommunity.tech/t/how-to-connect-your-r1-to-openclaw-formerly-moltbot-clawdbot/15646" style="color: var(--cyan);" target="_blank" rel="noopener noreferrer">R1 OpenClaw connection guide</a>.
     </div>
 
     <div class="banner">
-      <strong>Security notice:</strong> The token you enter will be embedded in the QR and JSON.
+      <strong>🔒 Security notice:</strong> The token you enter will be embedded in the QR and JSON.
       Do not share screenshots or the QR publicly. The WebSocket test will send the token only after
       explicit confirmations.
     </div>
 
     <div class="info-banner">
-      <strong>💡 For safer public hosting:</strong> Use <code>localhost.html</code> instead of
-      <code>index.html</code> to completely disable WebSocket support.
+      <strong>💡 For safer public hosting:</strong> Use
+      <a id="localhostLink" style="color: var(--green); font-weight: 600;" href="localhost.html">localhost.html</a>
+      instead of <code>index.html</code> to completely disable WebSocket support.
     </div>
 
     <div class="grid">
@@ -342,16 +350,16 @@
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 14px;">
-            <button id="buildBtn" type="button">Build QR</button>
-            <button id="copyJsonBtn" class="ghost" type="button">Copy JSON</button>
-            <button id="downloadQrBtn" class="ghost" type="button">Download QR</button>
+            <button id="buildBtn" type="button">🔨 Build QR</button>
+            <button id="copyJsonBtn" class="ghost" type="button">📋 Copy JSON</button>
+            <button id="downloadQrBtn" class="ghost" type="button">💾 Download QR</button>
           </div>
 
           <hr />
 
           <!-- WebSocket test gating -->
           <div style="margin-bottom: 10px;">
-            <label for="enableInput">Enable WebSocket Test (opt-in)</label>
+            <label for="enableInput">🧪 Enable WebSocket Test (opt-in)</label>
             <div class="small">
               Type <code>I UNDERSTAND</code> and click Enable to unlock the test controls.
             </div>
@@ -398,7 +406,7 @@
               <option value="ws">ws</option>
               <option value="wss">wss</option>
             </select>
-            <button id="testConnBtn" type="button" disabled>Test Connection</button>
+            <button id="testConnBtn" type="button" disabled>🔌 Test Connection</button>
             <button id="closeConnBtn" class="ghost" type="button" disabled>Close</button>
           </div>
           <div class="small">
@@ -442,13 +450,13 @@
         </section>
 
         <div style="margin-top: 14px;" class="danger small">
-          Do not share the QR or token publicly. Anyone with the token can attempt to connect to your gateway.
+          ⚠️ Do not share the QR or token publicly. Anyone with the token can attempt to connect to your gateway.
         </div>
       </div>
     </div>
 
     <footer style="margin-top: 20px;" class="small">
-      Single-file build. Prefer hosting behind authentication if you enable the WebSocket test for many users.
+      🐰🦞 Single-file build · Prefer hosting behind authentication if you enable the WebSocket test for many users.
     </footer>
   </div>
 
@@ -798,6 +806,14 @@
       let testModeEnabled = false;
       let lastTestTs = 0;
       let testAttempts = 0;
+
+      // Set localhost.html link to use current domain
+      (function() {
+        const link = document.getElementById('localhostLink');
+        if (link) {
+          link.href = location.origin + location.pathname.replace(/[^/]*$/, '') + 'localhost.html';
+        }
+      })();
 
       // Hide 'ws' option from test protocol dropdown if on HTTPS
       (function initProtocolDropdown() {

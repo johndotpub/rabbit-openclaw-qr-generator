@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>R1 OpenClaw QR — Read Only</title>
+  <title>🐰 R1 OpenClaw QR — Read Only 🦞</title>
 
   <!-- Meta CSP for GitHub Pages (strict: no network) -->
   <meta
@@ -13,16 +13,21 @@
 
   <style>
     :root {
-      --muted: #9aa4b2;
-      --accent: #7dd3fc;
-      --accent-hover: #38bdf8;
-      --danger: #fb7185;
-      --bg-primary: #071025;
-      --bg-card: rgba(255, 255, 255, 0.02);
-      --bg-card-hover: rgba(255, 255, 255, 0.04);
-      --border-subtle: rgba(255, 255, 255, 0.04);
-      --border-focus: rgba(125, 211, 252, 0.4);
-      --text-primary: #e6eef6;
+      --muted: #6272a4;
+      --accent: #bd93f9;
+      --accent-hover: #ff79c6;
+      --danger: #ff5555;
+      --bg-primary: #282a36;
+      --bg-card: #44475a;
+      --bg-card-hover: rgba(68, 71, 90, 0.8);
+      --border-subtle: rgba(98, 114, 164, 0.3);
+      --border-focus: rgba(189, 147, 249, 0.4);
+      --text-primary: #f8f8f2;
+      --green: #50fa7b;
+      --cyan: #8be9fd;
+      --orange: #ffb86c;
+      --yellow: #f1fa8c;
+      --pink: #ff79c6;
     }
 
     *,
@@ -110,7 +115,7 @@
     input:hover,
     textarea:hover,
     select:hover {
-      border-color: rgba(255, 255, 255, 0.08);
+      border-color: rgba(98, 114, 164, 0.5);
     }
 
     textarea {
@@ -128,11 +133,11 @@
     }
 
     button {
-      background: linear-gradient(90deg, var(--accent), #60a5fa);
+      background: linear-gradient(90deg, var(--accent), var(--pink));
       border: 0;
       padding: 10px 16px;
       border-radius: 8px;
-      color: #042028;
+      color: #282a36;
       font-weight: 500;
       cursor: pointer;
       transition: transform 0.1s ease, opacity 0.2s ease;
@@ -158,14 +163,14 @@
     }
 
     pre.json {
-      background: #02111a;
+      background: #21222c;
       padding: 14px;
       border-radius: 8px;
       overflow: auto;
-      color: #bfeafc;
+      color: var(--green);
       font-size: 12px;
       line-height: 1.5;
-      border: 1px solid rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(98, 114, 164, 0.2);
     }
 
     .small {
@@ -179,21 +184,23 @@
     }
 
     code {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(189, 147, 249, 0.1);
       padding: 2px 6px;
       border-radius: 4px;
       font-family: 'Monaco', 'Courier New', monospace;
       font-size: 12px;
+      color: var(--green);
     }
 
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>R1 OpenClaw QR — Read Only</h1>
+    <h1>🐰 R1 OpenClaw QR — Read Only 🦞</h1>
     <div class="lead">
       Generates gateway JSON and QR locally. This read-only build cannot send tokens anywhere and is
-      safe for public hosting.
+      safe for public hosting.<br>
+      Based on the <a href="https://forum.rabbitcommunity.tech/t/how-to-connect-your-r1-to-openclaw-formerly-moltbot-clawdbot/15646" style="color: var(--cyan);" target="_blank" rel="noopener noreferrer">R1 OpenClaw connection guide</a>.
     </div>
 
     <div style="margin-top: 20px;" class="card">
@@ -224,9 +231,9 @@
       />
 
       <div style="display: flex; gap: 10px; margin-top: 14px;">
-        <button id="buildBtn" type="button">Build QR</button>
-        <button id="copyJsonBtn" type="button">Copy JSON</button>
-        <button id="downloadQrBtn" type="button">Download QR</button>
+        <button id="buildBtn" type="button">🔨 Build QR</button>
+        <button id="copyJsonBtn" type="button">📋 Copy JSON</button>
+        <button id="downloadQrBtn" type="button">💾 Download QR</button>
       </div>
 
       <div style="margin-top: 16px;">
@@ -243,13 +250,13 @@
       </div>
 
       <div style="margin-top: 14px;" class="danger small">
-        <strong>Warning:</strong> The token is embedded in the QR. Do not share screenshots or the
+        <strong>⚠️ Warning:</strong> The token is embedded in the QR. Do not share screenshots or the
         QR publicly.
       </div>
     </div>
 
     <footer style="margin-top: 20px;" class="small">
-      Read-only single-file build. Safe for GitHub Pages.
+      🐰🦞 Read-only single-file build · Safe for GitHub Pages.
     </footer>
   </div>
 
