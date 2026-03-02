@@ -6,7 +6,7 @@
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Gateway-50fa7b.svg)](https://forum.rabbitcommunity.tech/t/how-to-connect-your-r1-to-openclaw-formerly-moltbot-clawdbot/15646)
 [![Rabbit R1](https://img.shields.io/badge/Rabbit-R1-ff79c6.svg)](https://rabbit.tech)
 
-> 🔗 **Live site:** self-host by opening `index.html` in any browser — no server required.
+> 🔗 **Live site:** [claw.rly.wtf](https://claw.rly.wtf)
 
 A small, single-file tool that generates an **OpenClaw gateway payload** as:
 
@@ -108,13 +108,11 @@ Built-in guardrails:
 
 ---
 
-## 📸 Example output
+## Project Availability
 
-Below is a sample QR code generated for a gateway hostname + 32-character token — the exact scenario reported as failing with the old encoder:
+- Websocket Testing Enabled:  https://claw.rly.wtf
+- Websocket Testing Disabled: https://claw.rly.wtf/localhost.html
 
-![Example QR code output](docs/example-qr.png)
-
-The R1 camera scans this correctly. The previous custom encoder would silently truncate the payload at ~80 bytes, producing a structurally valid but corrupt QR that the R1 firmware rejected without any visible error.
 
 ---
 
