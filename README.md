@@ -93,18 +93,11 @@ Built-in guardrails:
 
 ---
 
-## Publish on GitHub Pages (recommended: read-only build)
+## Project Availability
 
-1. In GitHub: **Settings → Pages**
-2. Choose **Deploy from a branch**
-3. Select:
-   - Branch: `main`
-   - Folder: `/ (root)`
-4. Your read-only page will be available at:
+- Websocket Testing Enabled:  https://claw.rly.wtf
+- Websocket Testing Disabled: https://claw.rly.wtf/localhost.html
 
-`https://johndotpub.github.io/rabbit-openclaw-qr-generator/localhost.html`
-
-If you want the safe build to load at the default repo Pages URL (`/`), rename `localhost.html` to `index.html` (only do this if you don’t need the advanced test build).
 
 ---
 
