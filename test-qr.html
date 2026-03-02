@@ -109,6 +109,50 @@
             token: 'abc',
             protocol: 'tcp'
           })
+        },
+        {
+          name: 'Hostname (not IP)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['r1.rly.wtf'],
+            port: 443,
+            token: 'test-token',
+            protocol: 'wss'
+          })
+        },
+        {
+          name: '32-char token (exact reported failure)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['r1.rly.wtf'],
+            port: 443,
+            token: 'abcdefghijklmnopqrstuvwxyz123456',
+            protocol: 'wss'
+          })
+        },
+        {
+          name: 'Hostname + 32-char token (~155 chars)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['claw.rly.wtf'],
+            port: 443,
+            token: 'b60e9c240cfe2f99ef0e9faa64fa069b',
+            protocol: 'wss'
+          })
+        },
+        {
+          name: 'Multiple hostnames',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['r1.rly.wtf', 'claw.rly.wtf'],
+            port: 443,
+            token: 'test-token',
+            protocol: 'wss'
+          })
         }
       ];
       

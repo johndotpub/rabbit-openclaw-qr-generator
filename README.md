@@ -66,25 +66,28 @@ The generator outputs JSON like:
 {
   "type": "openclaw-gateway",
   "version": 1,
-  "ips": ["192.168.1.10", "10.0.0.5"],
-  "port": 8080,
+  "ips": ["192.168.1.10", "r1.rly.wtf"],
+  "port": 443,
   "token": "your-token-here",
-  "protocol": "ws"
+  "protocol": "wss"
 }
 ```
 
 Field notes:
 
-- `ips`: entered as comma-separated values in the UI; output is an array of strings
+- `ips`: entered as comma-separated values in the UI; output is an array of strings — supports both IP addresses (e.g., `"192.168.1.10"`) and hostnames (e.g., `"r1.rly.wtf"`)
 - `protocol`: `ws`, `wss`, or `tcp` (depending on your environment)
 - `version`: payload schema version (currently `1`)
+- Tokens up to 64+ characters are supported with the corrected QR encoder
+
+> 💡 **Tip:** If the QR code is not recognized by the R1, ensure you are using error correction level M or H.
 
 ---
 
 ## 🚀 How to use
 
 1. Open **`index.html`** (recommended) or **`websocket.html`** (advanced) in a modern browser
-2. Enter IP(s), port, protocol, and token
+2. Enter IP(s) or hostname(s), port, protocol, and token
 3. Click **🔨 Build QR**
 4. Scan the QR to import, or click **📋 Copy JSON**
 5. Optional: click **💾 Download QR** to save a PNG
