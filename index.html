@@ -230,6 +230,16 @@
       border: 1px solid rgba(251, 113, 133, 0.2);
     }
 
+    .info-banner {
+      background: rgba(125, 211, 252, 0.15);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      color: #bfeafc;
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      font-weight: 500;
+    }
+
     hr {
       margin: 16px 0;
       border: none;
@@ -256,13 +266,17 @@
     <h1>R1 OpenClaw QR</h1>
     <div class="lead">
       Generates gateway JSON and QR locally. WebSocket test is gated and requires explicit confirmation.
-      Use localhost.html (not index.html) to disable the websocket support.
     </div>
 
     <div class="banner">
       <strong>Security notice:</strong> The token you enter will be embedded in the QR and JSON.
       Do not share screenshots or the QR publicly. The WebSocket test will send the token only after
       explicit confirmations.
+    </div>
+
+    <div class="info-banner">
+      <strong>💡 For safer public hosting:</strong> Use <code>localhost.html</code> instead of
+      <code>index.html</code> to completely disable WebSocket support.
     </div>
 
     <div class="grid">
