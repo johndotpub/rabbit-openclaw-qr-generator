@@ -66,7 +66,7 @@ The generator outputs JSON like:
 {
   "type": "openclaw-gateway",
   "version": 1,
-  "ips": ["192.168.1.10", "r1.rly.wtf"],
+  "ips": ["192.168.1.10", "gateway.example.com"],
   "port": 443,
   "token": "your-token-here",
   "protocol": "wss"
@@ -75,7 +75,7 @@ The generator outputs JSON like:
 
 Field notes:
 
-- `ips`: entered as comma-separated values in the UI; output is an array of strings — supports both IP addresses (e.g., `"192.168.1.10"`) and hostnames (e.g., `"r1.rly.wtf"`)
+- `ips`: entered as comma-separated values in the UI; output is an array of strings — supports both IP addresses (e.g., `"192.168.1.10"`) and hostnames (e.g., `"gateway.example.com"`)
 - `protocol`: `ws`, `wss`, or `tcp` (depending on your environment)
 - `version`: payload schema version (currently `1`)
 - Tokens up to 64+ characters are supported with the corrected QR encoder
