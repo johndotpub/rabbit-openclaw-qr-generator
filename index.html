@@ -6,6 +6,12 @@
   <title>R1 OpenClaw QR</title>
 
   <!-- CSP will be injected dynamically based on location.protocol -->
+  <!-- Note: This script runs before CSP is active. The tradeoff is acceptable because:
+       1. The script is inline and visible in the source
+       2. It only injects CSP based on a simple protocol check
+       3. Alternative would be a static CSP allowing both ws: and wss:, then relying only on JS enforcement
+       4. This approach provides defense-in-depth: both CSP and JS logic block ws: on HTTPS
+  -->
   <script>
     // Inject CSP early based on protocol: allow ws: only for non-HTTPS pages
     (function() {
@@ -674,8 +680,10 @@
         RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
           // Simple capacity table for QR code type 4, error correction level L
           // For a more complete implementation, use a proper capacity table
+          // RSBlock(totalCount, dataCount): totalCount = total bytes per block, dataCount = data bytes per block
           var rsBlocks = [];
-          if (typeNumber == 4) {
+          if (typeNumber === 4) {
+            // Type 4 QR code: 80 total bytes per block, 64 data bytes (16 error correction bytes)
             rsBlocks.push(new RSBlock(80, 64));
           } else {
             // Fallback for other types

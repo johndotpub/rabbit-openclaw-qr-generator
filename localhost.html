@@ -466,8 +466,10 @@
       }
       RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
         // Simple capacity table for QR code type 4, error correction level L
+        // RSBlock(totalCount, dataCount): totalCount = total bytes per block, dataCount = data bytes per block
         var rsBlocks = [];
-        if (typeNumber == 4) {
+        if (typeNumber === 4) {
+          // Type 4 QR code: 80 total bytes per block, 64 data bytes (16 error correction bytes)
           rsBlocks.push(new RSBlock(80, 64));
         } else {
           // Fallback for other types
