@@ -110,8 +110,8 @@ Built-in guardrails:
 
 ## Project Availability
 
-- Websocket Testing Enabled:  https://claw.rly.wtf
-- Websocket Testing Disabled: https://claw.rly.wtf/localhost.html
+- WebSocket Testing Disabled (recommended): https://claw.rly.wtf
+- WebSocket Testing Enabled (advanced): https://claw.rly.wtf/websocket.html
 
 
 ---
