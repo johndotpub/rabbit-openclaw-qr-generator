@@ -640,8 +640,10 @@
           }
           var data = new Array(totalDataCount);
           var i = 0;
-          while (buffer.getLengthInBits() > 0) {
+          var remainingBits = buffer.getLengthInBits();
+          while (remainingBits > 0 && i < totalDataCount) {
             data[i++] = buffer.getBufferByte();
+            remainingBits -= 8;
           }
           for (var j = i; j < totalDataCount; j++) {
             data[j] = j % 2 == 0 ? 0xec : 0x11;
@@ -704,10 +706,6 @@
         this.length++;
       };
       QRBitBuffer.prototype.getBufferByte = function() {
-        // Decrement length by 8 bits when consuming a byte
-        if (this.length >= 8) {
-          this.length -= 8;
-        }
         return this.buffer.shift() || 0;
       };
 

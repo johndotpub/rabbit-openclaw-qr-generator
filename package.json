@@ -8,6 +8,7 @@
     "test": "echo 'QR generation tests available:' && echo '  1. Visual: Open test-qr.html in a browser' && echo '  2. Automated: GitHub Actions workflow runs on push'"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "playwright": "^1.58.2"
   },
   "keywords": [
