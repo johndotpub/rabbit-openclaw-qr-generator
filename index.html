@@ -3,27 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>🐰 R1 OpenClaw QR 🦞</title>
+  <title>🐰 R1 OpenClaw QR Generator 🦞</title>
 
-  <!-- CSP will be injected dynamically based on location.protocol -->
-  <!-- Note: This script runs before CSP is active. The tradeoff is acceptable because:
-       1. The script is inline and visible in the source
-       2. It only injects CSP based on a simple protocol check
-       3. Alternative would be a static CSP allowing both ws: and wss:, then relying only on JS enforcement
-       4. This approach provides defense-in-depth: both CSP and JS logic block ws: on HTTPS
-  -->
-  <script>
-    // Inject CSP early based on protocol: allow ws: only for non-HTTPS pages
-    (function() {
-      var cspContent = location.protocol === 'https:'
-        ? "default-src 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self' wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';"
-        : "default-src 'none'; script-src 'self' 'unsafe-inline'; connect-src 'self' ws: wss:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none';";
-      var meta = document.createElement('meta');
-      meta.httpEquiv = 'Content-Security-Policy';
-      meta.content = cspContent;
-      document.head.appendChild(meta);
-    })();
-  </script>
+  <!-- Meta CSP for GitHub Pages (strict: no network) -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; style-src 'self' 'unsafe-inline';"
+  />
 
   <style>
     :root {
@@ -61,7 +47,7 @@
     }
 
     .wrap {
-      max-width: 980px;
+      max-width: 900px;
       margin: 28px auto;
       padding: 18px;
     }
@@ -78,13 +64,6 @@
       font-size: 13px;
       line-height: 1.5;
       margin-top: 8px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 20px;
-      margin-top: 20px;
     }
 
     .card {
@@ -183,35 +162,12 @@
       cursor: not-allowed;
     }
 
-    button.ghost {
-      background: transparent;
-      border: 1px solid rgba(98, 114, 164, 0.4);
-      color: var(--cyan);
-    }
-
-    button.ghost:hover:not(:disabled) {
-      background: rgba(139, 233, 253, 0.05);
-      border-color: var(--cyan);
-    }
-
     pre.json {
       background: #21222c;
       padding: 14px;
       border-radius: 8px;
       overflow: auto;
       color: var(--green);
-      font-size: 12px;
-      line-height: 1.5;
-      border: 1px solid rgba(98, 114, 164, 0.2);
-    }
-
-    .log {
-      background: #21222c;
-      padding: 12px;
-      border-radius: 8px;
-      color: var(--cyan);
-      max-height: 160px;
-      overflow: auto;
       font-size: 12px;
       line-height: 1.5;
       border: 1px solid rgba(98, 114, 164, 0.2);
@@ -225,6 +181,15 @@
 
     .danger {
       color: var(--danger);
+    }
+
+    code {
+      background: rgba(189, 147, 249, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--green);
     }
 
     .banner {
@@ -246,608 +211,390 @@
       font-weight: 500;
     }
 
-    hr {
-      margin: 16px 0;
-      border: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    code {
-      background: rgba(189, 147, 249, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 12px;
-      color: var(--green);
-    }
-
-    @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>🐰 R1 OpenClaw QR 🦞</h1>
+    <h1>🐰 R1 OpenClaw QR Generator 🦞</h1>
     <div class="lead">
-      Generates gateway JSON and QR locally. WebSocket test is gated and requires explicit confirmation.<br>
+      Generates gateway JSON and QR locally — no backend, no network requests. Safe for public hosting.<br>
       Based on the <a href="https://forum.rabbitcommunity.tech/t/how-to-connect-your-r1-to-openclaw-formerly-moltbot-clawdbot/15646" style="color: var(--cyan);" target="_blank" rel="noopener noreferrer">R1 OpenClaw connection guide</a>.
     </div>
 
     <div class="banner">
       <strong>🔒 Security notice:</strong> The token you enter will be embedded in the QR and JSON.
-      Do not share screenshots or the QR publicly. The WebSocket test will send the token only after
-      explicit confirmations.
+      Do not share screenshots or the QR publicly.
     </div>
 
     <div class="info-banner">
-      <strong>💡 For safer public hosting:</strong> Use
-      <a id="localhostLink" style="color: var(--green); font-weight: 600;" href="localhost.html">localhost.html</a>
-      instead of <code>index.html</code> to completely disable WebSocket support.
+      <strong>🔧 Need to test a WebSocket connection?</strong> Use
+      <a id="websocketLink" style="color: var(--green); font-weight: 600;" href="websocket.html">websocket.html</a>
+      for the advanced version with optional WebSocket testing.
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <!-- Form: build payload -->
-        <form id="payloadForm" autocomplete="off" onsubmit="return false;">
-          <div style="display: flex; gap: 12px; margin-bottom: 14px;">
-            <div style="flex: 1;">
-              <label for="ips">IPs (comma separated)</label>
-              <input
-                id="ips"
-                type="text"
-                placeholder="192.168.1.10,10.0.0.5"
-                autocomplete="off"
-              />
-            </div>
-            <div style="width: 120px;">
-              <label for="port">Port</label>
-              <input
-                id="port"
-                type="number"
-                min="1"
-                max="65535"
-                value="8080"
-                autocomplete="off"
-              />
-            </div>
-          </div>
+    <div style="margin-top: 20px;" class="card">
+      <label for="ips">IPs (comma separated)</label>
+      <input
+        id="ips"
+        type="text"
+        placeholder="192.168.1.10,10.0.0.5"
+        autocomplete="off"
+      />
 
-          <div style="display: flex; gap: 12px; margin-bottom: 14px;">
-            <div style="flex: 1;">
-              <label for="protocol">Protocol</label>
-              <select id="protocol">
-                <option value="ws">ws</option>
-                <option value="wss">wss</option>
-                <option value="tcp">tcp</option>
-              </select>
-            </div>
-            <div style="width: 120px;">
-              <label for="version">Version</label>
-              <input
-                id="version"
-                type="number"
-                min="1"
-                value="1"
-                autocomplete="off"
-              />
-            </div>
-          </div>
+      <label for="port" style="margin-top: 12px;">Port</label>
+      <input id="port" type="number" value="8080" autocomplete="off" />
 
-          <div style="margin-bottom: 14px;">
-            <label for="token">Token</label>
-            <input
-              id="token"
-              type="text"
-              placeholder="secret-token-goes-here"
-              autocomplete="off"
-            />
-            <div class="small" style="margin-top: 6px;">
-              Token will be embedded in the QR and JSON preview. Keep it secret.
-            </div>
-          </div>
+      <label for="protocol" style="margin-top: 12px;">Protocol</label>
+      <select id="protocol">
+        <option value="ws">ws</option>
+        <option value="wss">wss</option>
+        <option value="tcp">tcp</option>
+      </select>
 
-          <div style="display: flex; gap: 10px; margin-top: 14px;">
-            <button id="buildBtn" type="button">🔨 Build QR</button>
-            <button id="copyJsonBtn" class="ghost" type="button">📋 Copy JSON</button>
-            <button id="downloadQrBtn" class="ghost" type="button">💾 Download QR</button>
-          </div>
+      <label for="token" style="margin-top: 12px;">Token</label>
+      <input
+        id="token"
+        type="text"
+        placeholder="secret-token"
+        autocomplete="off"
+      />
 
-          <hr />
-
-          <!-- WebSocket test gating -->
-          <div style="margin-bottom: 10px;">
-            <label for="enableInput">🧪 Enable WebSocket Test (opt-in)</label>
-            <div class="small">
-              Type <code>I UNDERSTAND</code> and click Enable to unlock the test controls.
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-              <input
-                id="enableInput"
-                type="text"
-                placeholder="Type I UNDERSTAND to enable"
-                autocomplete="off"
-              />
-              <button id="enableBtn" class="ghost" type="button">
-                Enable Test Mode
-              </button>
-            </div>
-            <div id="enableStatus" class="small" style="margin-top: 10px; color: var(--muted);">
-              Test mode is disabled.
-            </div>
-          </div>
-        </form>
-
-        <section style="margin-top: 16px;">
-          <div class="section-label">JSON Preview</div>
-          <pre id="jsonPreview" class="json" aria-live="polite">{ "type": "openclaw-gateway", "version": 1, "ips": [], "port": 8080, "token": "", "protocol": "ws" }</pre>
-        </section>
-
-        <section style="margin-top: 14px;">
-          <label for="testHost">Test Connection (WebSocket)</label>
-          <div class="row" style="margin-bottom: 10px;">
-            <input
-              id="testHost"
-              type="text"
-              placeholder="host or IP (e.g. 192.168.1.10)"
-              autocomplete="off"
-            />
-            <input
-              id="testPort"
-              type="number"
-              placeholder="port"
-              autocomplete="off"
-            />
-          </div>
-          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <select id="testProto" style="width: 120px;">
-              <option value="ws">ws</option>
-              <option value="wss">wss</option>
-            </select>
-            <button id="testConnBtn" type="button" disabled>🔌 Test Connection</button>
-            <button id="closeConnBtn" class="ghost" type="button" disabled>Close</button>
-          </div>
-          <div class="small">
-            Test sends the token only to the host you specify after double confirmation.
-            Auto-closes after 20s.
-          </div>
-          <div style="margin-top: 12px;" id="log" class="log" aria-live="polite"></div>
-        </section>
+      <div style="display: flex; gap: 10px; margin-top: 14px;">
+        <button id="buildBtn" type="button">🔨 Build QR</button>
+        <button id="copyJsonBtn" type="button">📋 Copy JSON</button>
+        <button id="downloadQrBtn" type="button">💾 Download QR</button>
       </div>
 
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <div>
-            <label>QR</label>
-            <div class="small">Scan this with your device to import the gateway payload.</div>
-          </div>
-          <div class="small">PNG size: <span id="qrSizeLabel">300</span>px</div>
-        </div>
+      <div style="margin-top: 16px;">
+        <div class="section-label">JSON Preview</div>
+        <pre id="jsonPreview" class="json"></pre>
+      </div>
 
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
-          <canvas
-            id="qr"
-            width="300"
-            height="300"
-            aria-hidden="true"
-            style="background: white; border-radius: 8px;"
-          ></canvas>
-          <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
-            <button id="increaseQr" class="ghost" type="button">+ Size</button>
-            <button id="decreaseQr" class="ghost" type="button">- Size</button>
-          </div>
-        </div>
+      <div style="margin-top: 14px;">
+        <label>QR Code</label>
+        <div
+          id="qrcode"
+          style="background: white; padding: 10px; border-radius: 8px; display: inline-block;"
+        ></div>
+      </div>
 
-        <section style="margin-top: 14px;">
-          <label for="rawPayload">Raw Payload</label>
-          <textarea
-            id="rawPayload"
-            readonly
-            style="width: 100%; height: 90px;"
-          ></textarea>
-        </section>
-
-        <div style="margin-top: 14px;" class="danger small">
-          ⚠️ Do not share the QR or token publicly. Anyone with the token can attempt to connect to your gateway.
-        </div>
+      <div style="margin-top: 14px;" class="danger small">
+        <strong>⚠️ Warning:</strong> The token is embedded in the QR. Do not share screenshots or the
+        QR publicly.
       </div>
     </div>
 
     <footer style="margin-top: 20px;" class="small">
-      🐰🦞 Single-file build · Prefer hosting behind authentication if you enable the WebSocket test for many users.
+      🐰🦞 Safe single-file build · No network requests · Perfect for public hosting.
     </footer>
   </div>
 
-  <!--
-    Embedded minimal QR encoder
-    - Compact, demo-grade encoder sufficient for small JSON payloads.
-    - Inline comments explain purpose and limitations.
-  -->
+  <!-- Embedded minimal QR encoder (same compact encoder as singlefile) -->
   <script>
-    /* QR encoder: compact adaptation for single-file portability.
-       - Exposes qrcodeFactory(text).drawToCanvas(canvas, size)
-       - Not intended as a drop-in replacement for production libraries.
-       - If payloads grow, replace with a vetted library and use SRI. */
-    (function() {
-      function qrcodeFactory(text) {
-        return {
-          drawToCanvas: function(canvas, size) {
-            try {
-              var qr = qrcode(0, 'L');
-              qr.addData(text);
-              qr.make();
-              var ctx = canvas.getContext('2d');
-              var moduleCount = qr.getModuleCount();
-              var scale = Math.floor(size / moduleCount) || 1;
-              var margin = Math.floor((size - moduleCount * scale) / 2);
-              canvas.width = size;
-              canvas.height = size;
-              ctx.fillStyle = '#ffffff';
-              ctx.fillRect(0, 0, size, size);
-              ctx.fillStyle = '#000000';
-              for (var r = 0; r < moduleCount; r++) {
-                for (var c = 0; c < moduleCount; c++) {
-                  if (qr.isDark(r, c)) {
-                    ctx.fillRect(margin + c * scale, margin + r * scale, scale, scale);
-                  }
+  /* Minimal QR encoder and small helpers (same compact implementation as singlefile).
+     Inline comments kept to explain purpose. */
+  (function(){
+    function qrcodeFactory(text) {
+      return {
+        drawToCanvas: function(canvas, size){
+          try {
+            var qr = qrcode(0, 'L');
+            qr.addData(text);
+            qr.make();
+            var ctx = canvas.getContext('2d');
+            var moduleCount = qr.getModuleCount();
+            var scale = Math.floor(size / moduleCount) || 1;
+            var margin = Math.floor((size - moduleCount * scale) / 2);
+            canvas.width = size; canvas.height = size;
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,size,size);
+            ctx.fillStyle = '#000000';
+            for (var r=0;r<moduleCount;r++){
+              for (var c=0;c<moduleCount;c++){
+                if (qr.isDark(r,c)){
+                  ctx.fillRect(margin + c*scale, margin + r*scale, scale, scale);
                 }
               }
-            } catch (e) {
-              var ctx = canvas.getContext('2d');
-              canvas.width = size;
-              canvas.height = size;
-              ctx.fillStyle = '#fff';
-              ctx.fillRect(0, 0, size, size);
-              ctx.fillStyle = '#000';
-              ctx.font = '12px monospace';
-              ctx.fillText('QR ERROR', 10, 20);
-              console.error('QR draw error', e);
             }
+          } catch(e){
+            var ctx = canvas.getContext('2d');
+            canvas.width = size; canvas.height = size;
+            ctx.fillStyle = '#fff'; ctx.fillRect(0,0,size,size);
+            ctx.fillStyle = '#000'; ctx.font = '12px monospace';
+            ctx.fillText('QR ERROR', 10, 20);
+            console.error('QR draw error', e);
           }
-        };
+        }
+      };
+    }
+
+    /* Condensed qrcode core (same as singlefile). */
+    function qrcode(typeNumber, errorCorrectLevel) {
+      var _typeNumber = typeNumber;
+      var _errorCorrectLevel = QRErrorCorrectLevel[errorCorrectLevel] || QRErrorCorrectLevel.L;
+      var _modules = null;
+      var _moduleCount = 0;
+      var _dataList = [];
+
+      function makeImpl(test, maskPattern) {
+        _moduleCount = (_typeNumber || 4) * 4 + 17;
+        _modules = new Array(_moduleCount);
+        for (var row = 0; row < _moduleCount; row++) {
+          _modules[row] = new Array(_moduleCount);
+          for (var col = 0; col < _moduleCount; col++) _modules[row][col] = null;
+        }
+        setupPositionProbePattern(0, 0);
+        setupPositionProbePattern(_moduleCount - 7, 0);
+        setupPositionProbePattern(0, _moduleCount - 7);
+        setupPositionAdjustPattern();
+        setupTimingPattern();
+        setupTypeInfo(test, maskPattern);
+        var data = createData(_typeNumber || 4, _errorCorrectLevel, _dataList);
+        mapData(data, maskPattern);
       }
 
-      /* Minimal qrcode generator core (condensed).
-         - Supports small payloads; truncates if too large.
-         - Derived from public domain implementations for portability. */
-      function qrcode(typeNumber, errorCorrectLevel) {
-        var _typeNumber = typeNumber;
-        var _errorCorrectLevel = QRErrorCorrectLevel[errorCorrectLevel] || QRErrorCorrectLevel.L;
-        var _modules = null;
-        var _moduleCount = 0;
-        var _dataList = [];
-
-        function makeImpl(test, maskPattern) {
-          _moduleCount = (_typeNumber || 4) * 4 + 17;
-          _modules = new Array(_moduleCount);
-          for (var row = 0; row < _moduleCount; row++) {
-            _modules[row] = new Array(_moduleCount);
-            for (var col = 0; col < _moduleCount; col++) _modules[row][col] = null;
-          }
-          setupPositionProbePattern(0, 0);
-          setupPositionProbePattern(_moduleCount - 7, 0);
-          setupPositionProbePattern(0, _moduleCount - 7);
-          setupPositionAdjustPattern();
-          setupTimingPattern();
-          setupTypeInfo(test, maskPattern);
-          var data = createData(_typeNumber || 4, _errorCorrectLevel, _dataList);
-          mapData(data, maskPattern);
-        }
-
-        function setupPositionProbePattern(row, col) {
-          for (var r = -1; r <= 7; r++) {
-            if (row + r <= -1 || _moduleCount <= row + r) continue;
-            for (var c = -1; c <= 7; c++) {
-              if (col + c <= -1 || _moduleCount <= col + c) continue;
-              if (
-                (0 <= r && r <= 6 && (c == 0 || c == 6)) ||
+      function setupPositionProbePattern(row, col) {
+        for (var r = -1; r <= 7; r++) {
+          if (row + r <= -1 || _moduleCount <= row + r) continue;
+          for (var c = -1; c <= 7; c++) {
+            if (col + c <= -1 || _moduleCount <= col + c) continue;
+            if ((0 <= r && r <= 6 && (c == 0 || c == 6)) ||
                 (0 <= c && c <= 6 && (r == 0 || r == 6)) ||
-                (2 <= r && r <= 4 && 2 <= c && c <= 4)
-              ) {
-                _modules[row + r][col + c] = true;
-              } else {
-                _modules[row + r][col + c] = false;
+                (2 <= r && r <= 4 && 2 <= c && c <= 4)) {
+              _modules[row + r][col + c] = true;
+            } else {
+              _modules[row + r][col + c] = false;
+            }
+          }
+        }
+      }
+
+      function setupTimingPattern() {
+        for (var r = 8; r < _moduleCount - 8; r++) {
+          if (_modules[r][6] != null) continue;
+          _modules[r][6] = (r % 2 == 0);
+        }
+        for (var c = 8; c < _moduleCount - 8; c++) {
+          if (_modules[6][c] != null) continue;
+          _modules[6][c] = (c % 2 == 0);
+        }
+      }
+
+      function setupPositionAdjustPattern() {
+        var pos = getPatternPosition(_typeNumber || 4);
+        for (var i = 0; i < pos.length; i++) {
+          for (var j = 0; j < pos.length; j++) {
+            var row = pos[i], col = pos[j];
+            if (_modules[row][col] != null) continue;
+            for (var r = -2; r <= 2; r++) {
+              for (var c = -2; c <= 2; c++) {
+                _modules[row + r][col + c] = (Math.abs(r) == 2 || Math.abs(c) == 2 || (r == 0 && c == 0));
               }
             }
           }
         }
+      }
 
-        function setupTimingPattern() {
-          for (var r = 8; r < _moduleCount - 8; r++) {
-            if (_modules[r][6] != null) continue;
-            _modules[r][6] = r % 2 == 0;
-          }
-          for (var c = 8; c < _moduleCount - 8; c++) {
-            if (_modules[6][c] != null) continue;
-            _modules[6][c] = c % 2 == 0;
-          }
+      function setupTypeInfo(test, maskPattern) {
+        var data = (_errorCorrectLevel << 3) | maskPattern;
+        var bits = getBCHTypeInfo(data);
+        for (var i = 0; i < 15; i++) {
+          var mod = (!test && ((bits >> i) & 1) == 1);
+          if (i < 6) _modules[i][8] = mod;
+          else if (i < 8) _modules[i + 1][8] = mod;
+          else _modules[_moduleCount - 15 + i][8] = mod;
         }
+        for (var i = 0; i < 15; i++) {
+          var mod = (!test && ((bits >> i) & 1) == 1);
+          if (i < 8) _modules[8][_moduleCount - i - 1] = mod;
+          else if (i < 9) _modules[8][15 - i - 1 + 1] = mod;
+          else _modules[8][15 - i - 1] = mod;
+        }
+        _modules[_moduleCount - 8][8] = (!test);
+      }
 
-        function setupPositionAdjustPattern() {
-          var pos = getPatternPosition(_typeNumber || 4);
-          for (var i = 0; i < pos.length; i++) {
-            for (var j = 0; j < pos.length; j++) {
-              var row = pos[i],
-                col = pos[j];
-              if (_modules[row][col] != null) continue;
-              for (var r = -2; r <= 2; r++) {
-                for (var c = -2; c <= 2; c++) {
-                  _modules[row + r][col + c] =
-                    Math.abs(r) == 2 || Math.abs(c) == 2 || (r == 0 && c == 0);
+      function mapData(data, maskPattern) {
+        var inc = -1;
+        var row = _moduleCount - 1;
+        var bitIndex = 7;
+        var byteIndex = 0;
+        for (var col = _moduleCount - 1; col > 0; col -= 2) {
+          if (col == 6) col--;
+          while (true) {
+            for (var c = 0; c < 2; c++) {
+              if (_modules[row][col - c] == null) {
+                var dark = false;
+                if (byteIndex < data.length) dark = (((data[byteIndex] >>> bitIndex) & 1) == 1);
+                var mask = getMask(maskPattern, row, col - c);
+                if (mask) dark = !dark;
+                _modules[row][col - c] = dark;
+                bitIndex--;
+                if (bitIndex == -1) {
+                  byteIndex++;
+                  bitIndex = 7;
                 }
               }
             }
-          }
-        }
-
-        function setupTypeInfo(test, maskPattern) {
-          var data = (_errorCorrectLevel << 3) | maskPattern;
-          var bits = getBCHTypeInfo(data);
-          for (var i = 0; i < 15; i++) {
-            var mod = !test && ((bits >> i) & 1) == 1;
-            if (i < 6) _modules[i][8] = mod;
-            else if (i < 8) _modules[i + 1][8] = mod;
-            else _modules[_moduleCount - 15 + i][8] = mod;
-          }
-          for (var i = 0; i < 15; i++) {
-            var mod = !test && ((bits >> i) & 1) == 1;
-            if (i < 8) _modules[8][_moduleCount - i - 1] = mod;
-            else if (i < 9) _modules[8][15 - i - 1 + 1] = mod;
-            else _modules[8][15 - i - 1] = mod;
-          }
-          _modules[_moduleCount - 8][8] = !test;
-        }
-
-        function mapData(data, maskPattern) {
-          var inc = -1;
-          var row = _moduleCount - 1;
-          var bitIndex = 7;
-          var byteIndex = 0;
-          for (var col = _moduleCount - 1; col > 0; col -= 2) {
-            if (col == 6) col--;
-            while (true) {
-              for (var c = 0; c < 2; c++) {
-                if (_modules[row][col - c] == null) {
-                  var dark = false;
-                  if (byteIndex < data.length) dark = ((data[byteIndex] >>> bitIndex) & 1) == 1;
-                  var mask = getMask(maskPattern, row, col - c);
-                  if (mask) dark = !dark;
-                  _modules[row][col - c] = dark;
-                  bitIndex--;
-                  if (bitIndex == -1) {
-                    byteIndex++;
-                    bitIndex = 7;
-                  }
-                }
-              }
-              row += inc;
-              if (row < 0 || _moduleCount <= row) {
-                row -= inc;
-                inc = -inc;
-                break;
-              }
+            row += inc;
+            if (row < 0 || _moduleCount <= row) {
+              row -= inc;
+              inc = -inc;
+              break;
             }
           }
         }
+      }
 
-        function createData(typeNumber, errorCorrectLevel, dataList) {
-          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
-          var buffer = new QRBitBuffer();
-          for (var i = 0; i < dataList.length; i++) {
-            var data = dataList[i];
-            buffer.put(4, 4); // mode: 8bit byte
-            buffer.put(data.length, 8);
-            for (var j = 0; j < data.length; j++) buffer.put(data.charCodeAt(j), 8);
-          }
-          var totalDataCount = 0;
-          for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
-          if (buffer.getLengthInBits() > totalDataCount * 8) {
-            // payload too large for this compact implementation; truncation risk
-          }
-          var data = new Array(totalDataCount);
-          var i = 0;
-          var remainingBits = buffer.getLengthInBits();
-          while (remainingBits > 0 && i < totalDataCount) {
-            data[i++] = buffer.getBufferByte();
-            remainingBits -= 8;
-          }
-          for (var j = i; j < totalDataCount; j++) {
-            data[j] = j % 2 == 0 ? 0xec : 0x11;
-          }
-          return data;
+      function createData(typeNumber, errorCorrectLevel, dataList) {
+        var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+        var buffer = new QRBitBuffer();
+        for (var i = 0; i < dataList.length; i++) {
+          var data = dataList[i];
+          buffer.put(4, 4); // mode: 8bit byte
+          buffer.put(data.length, 8);
+          for (var j = 0; j < data.length; j++) buffer.put(data.charCodeAt(j), 8);
         }
+        var totalDataCount = 0;
+        for (var i = 0; i < rsBlocks.length; i++) totalDataCount += rsBlocks[i].dataCount;
+        if (buffer.getLengthInBits() > totalDataCount * 8) {
+          // payload too large for this compact implementation; truncation risk
+        }
+        var data = new Array(totalDataCount);
+        var i = 0;
+        var remainingBits = buffer.getLengthInBits();
+        while (remainingBits > 0 && i < totalDataCount) {
+          data[i++] = buffer.getBufferByte();
+          remainingBits -= 8;
+        }
+        for (var j = i; j < totalDataCount; j++) {
+          data[j] = (j % 2 == 0) ? 0xEC : 0x11;
+        }
+        return data;
+      }
 
-        return {
-          addData: function(data) {
-            _dataList.push(data);
-          },
-          make: function() {
-            if (_typeNumber == 0) {
-              // Auto-select QR type based on payload size
-              // Calculate required bytes including overhead:
-              // - Mode indicator: 4 bits
-              // - Character count indicator: 8 bits (for versions 1-9 in byte mode)
-              // - Data: 8 bits per byte
-              // - Terminator: up to 4 bits (not included in calculation, covered by safety margin)
-              // Total bits = 12 + (totalData * 8), then convert to bytes with +2 safety margin
-              var totalData = 0;
-              for (var i = 0; i < _dataList.length; i++) {
-                totalData += _dataList[i].length;
-              }
-              var requiredBytes = Math.ceil((12 + totalData * 8) / 8) + 2; // +2 for safety
-              // Choose type based on required bytes (conservative estimates)
-              if (requiredBytes <= 19) _typeNumber = 1;
-              else if (requiredBytes <= 34) _typeNumber = 2;
-              else if (requiredBytes <= 55) _typeNumber = 3;
-              else if (requiredBytes <= 80) _typeNumber = 4;
-              else if (requiredBytes <= 108) _typeNumber = 5;
-              else if (requiredBytes <= 136) _typeNumber = 6;
-              else _typeNumber = 7;
+      return {
+        addData: function(data) { _dataList.push(data); },
+        make: function() {
+          if (_typeNumber == 0) {
+            // Auto-select QR type based on payload size  
+            // Calculate required bytes including overhead:
+            // - Mode indicator: 4 bits
+            // - Character count indicator: 8 bits (for versions 1-9 in byte mode)
+            // - Data: 8 bits per byte
+            // Total bits = 12 + (totalData * 8), then convert to bytes with safety margin
+            var totalData = 0;
+            for (var i = 0; i < _dataList.length; i++) {
+              totalData += _dataList[i].length;
             }
-            makeImpl(false, 0);
-          },
-          getModuleCount: function() {
-            return _moduleCount;
-          },
-          isDark: function(r, c) {
-            return _modules[r][c];
+            var requiredBytes = Math.ceil((12 + totalData * 8) / 8) + 2;
+            // Choose type based on required bytes
+            if (requiredBytes <= 19) _typeNumber = 1;
+            else if (requiredBytes <= 34) _typeNumber = 2;
+            else if (requiredBytes <= 55) _typeNumber = 3;
+            else if (requiredBytes <= 80) _typeNumber = 4;
+            else if (requiredBytes <= 108) _typeNumber = 5;
+            else if (requiredBytes <= 136) _typeNumber = 6;
+            else _typeNumber = 7;
           }
-        };
-      }
+          makeImpl(false, 0);
+        },
+        getModuleCount: function() { return _moduleCount; },
+        isDark: function(r,c) { return _modules[r][c]; }
+      };
+    }
 
-      function QRBitBuffer() {
-        this.buffer = [];
-        this.length = 0;
-      }
-      QRBitBuffer.prototype.put = function(num, length) {
-        for (var i = 0; i < length; i++) this.putBit(((num >>> (length - i - 1)) & 1) == 1);
-      };
-      QRBitBuffer.prototype.getLengthInBits = function() {
-        return this.length;
-      };
-      QRBitBuffer.prototype.putBit = function(bit) {
-        var bufIndex = Math.floor(this.length / 8);
-        if (this.buffer.length <= bufIndex) this.buffer.push(0);
-        if (bit) this.buffer[bufIndex] |= 0x80 >>> (this.length % 8);
-        this.length++;
-      };
-      QRBitBuffer.prototype.getBufferByte = function() {
-        return this.buffer.shift() || 0;
-      };
+    function QRBitBuffer() { this.buffer = []; this.length = 0; }
+    QRBitBuffer.prototype.put = function(num, length) {
+      for (var i = 0; i < length; i++) this.putBit(((num >>> (length - i - 1)) & 1) == 1);
+    };
+    QRBitBuffer.prototype.getLengthInBits = function() { return this.length; };
+    QRBitBuffer.prototype.putBit = function(bit) {
+      var bufIndex = Math.floor(this.length / 8);
+      if (this.buffer.length <= bufIndex) this.buffer.push(0);
+      if (bit) this.buffer[bufIndex] |= (0x80 >>> (this.length % 8));
+      this.length++;
+    };
+    QRBitBuffer.prototype.getBufferByte = function() {
+      return this.buffer.shift() || 0;
+    };
 
-      var QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
-      var QRRSBlock = (function() {
-        function RSBlock(totalCount, dataCount) {
-          this.totalCount = totalCount;
-          this.dataCount = dataCount;
+    var QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
+    var QRRSBlock = (function() {
+      function RSBlock(totalCount, dataCount) {
+        this.totalCount = totalCount;
+        this.dataCount = dataCount;
+      }
+      RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+        // Simple capacity table for common QR code types with error correction level L
+        // RSBlock(totalCount, dataCount): totalCount = total bytes per block, dataCount = data bytes per block
+        // For most payloads (~100-150 chars), type 5-6 provides sufficient capacity
+        var rsBlocks = [];
+        if (typeNumber === 1) {
+          rsBlocks.push(new RSBlock(26, 19));
+        } else if (typeNumber === 2) {
+          rsBlocks.push(new RSBlock(44, 34));
+        } else if (typeNumber === 3) {
+          rsBlocks.push(new RSBlock(70, 55));
+        } else if (typeNumber === 4) {
+          rsBlocks.push(new RSBlock(100, 80));
+        } else if (typeNumber === 5) {
+          rsBlocks.push(new RSBlock(134, 108));
+        } else if (typeNumber === 6) {
+          rsBlocks.push(new RSBlock(172, 136));
+        } else if (typeNumber >= 7) {
+          // Type 7+: use generous capacity for large payloads
+          rsBlocks.push(new RSBlock(196, 156));
+        } else {
+          // Default fallback
+          rsBlocks.push(new RSBlock(100, 80));
         }
-        RSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
-          // Simple capacity table for common QR code types with error correction level L
-          // RSBlock(totalCount, dataCount): totalCount = total bytes per block, dataCount = data bytes per block
-          // For most payloads (~100-150 chars), type 5-6 provides sufficient capacity
-          var rsBlocks = [];
-          if (typeNumber === 1) {
-            rsBlocks.push(new RSBlock(26, 19));
-          } else if (typeNumber === 2) {
-            rsBlocks.push(new RSBlock(44, 34));
-          } else if (typeNumber === 3) {
-            rsBlocks.push(new RSBlock(70, 55));
-          } else if (typeNumber === 4) {
-            rsBlocks.push(new RSBlock(100, 80));
-          } else if (typeNumber === 5) {
-            rsBlocks.push(new RSBlock(134, 108));
-          } else if (typeNumber === 6) {
-            rsBlocks.push(new RSBlock(172, 136));
-          } else if (typeNumber >= 7) {
-            // Type 7+: use generous capacity for large payloads
-            rsBlocks.push(new RSBlock(196, 156));
-          } else {
-            // Default fallback
-            rsBlocks.push(new RSBlock(100, 80));
-          }
-          return rsBlocks;
-        };
-        return RSBlock;
-      })();
-      function getPatternPosition(typeNumber) {
-        return [6, 18];
-      }
-      function getBCHTypeInfo(data) {
-        return (data << 10) ^ 0x5412;
-      }
-      function getMask(maskPattern, i, j) {
-        return (i + j) % 2 == 0;
-      }
-
-      window.qrcode = qrcode;
-      window.qrcodeFactory = qrcodeFactory;
+        return rsBlocks;
+      };
+      return RSBlock;
     })();
+    function getPatternPosition(typeNumber) {
+      return [6, 18];
+    }
+    function getBCHTypeInfo(data) {
+      return (data << 10) ^ 0x5412;
+    }
+    function getMask(maskPattern, i, j) {
+      return (i + j) % 2 == 0;
+    }
+
+    window.qrcode = qrcode;
+    window.qrcodeFactory = qrcodeFactory;
+  })();
   </script>
 
-  <!--
-    App logic
-    - Inline but documented.
-    - Key safety features: explicit opt-in, double confirmation, forced wss on HTTPS, cooldowns, auto-close.
-  -->
+  <!-- App logic for read-only build -->
   <script>
     (function() {
-      // Element references
       const ipsEl = document.getElementById('ips');
       const portEl = document.getElementById('port');
       const protoEl = document.getElementById('protocol');
-      const versionEl = document.getElementById('version');
       const tokenEl = document.getElementById('token');
       const buildBtn = document.getElementById('buildBtn');
       const jsonPreview = document.getElementById('jsonPreview');
-      const rawPayload = document.getElementById('rawPayload');
-      const qrCanvas = document.getElementById('qr');
+      const qrcodeEl = document.getElementById('qrcode');
       const copyJsonBtn = document.getElementById('copyJsonBtn');
       const downloadQrBtn = document.getElementById('downloadQrBtn');
-      const increaseQr = document.getElementById('increaseQr');
-      const decreaseQr = document.getElementById('decreaseQr');
-      const qrSizeLabel = document.getElementById('qrSizeLabel');
 
-      const enableInput = document.getElementById('enableInput');
-      const enableBtn = document.getElementById('enableBtn');
-      const enableStatus = document.getElementById('enableStatus');
-
-      const testHost = document.getElementById('testHost');
-      const testPort = document.getElementById('testPort');
-      const testProto = document.getElementById('testProto');
-      const testConnBtn = document.getElementById('testConnBtn');
-      const closeConnBtn = document.getElementById('closeConnBtn');
-      const logEl = document.getElementById('log');
-
-      // State
-      let qrSize = 300;
-      let ws = null;
-      let testModeEnabled = false;
-      let lastTestTs = 0;
-      let testAttempts = 0;
-
-      // Set localhost.html link to use current domain
-      (function() {
-        const link = document.getElementById('localhostLink');
-        if (link) {
-          link.href = location.origin + location.pathname.replace(/[^/]*$/, '') + 'localhost.html';
-        }
-      })();
-
-      // Hide 'ws' option from test protocol dropdown if on HTTPS
-      (function initProtocolDropdown() {
-        if (location.protocol === 'https:') {
-          // Remove ws option from test dropdown on HTTPS pages
-          const wsOption = testProto.querySelector('option[value="ws"]');
-          if (wsOption) {
-            wsOption.remove();
-          }
-          // Default to wss
-          testProto.value = 'wss';
-        }
-      })();
-
-      // Logging helper
-      function log(msg, level) {
-        level = level || 'info';
-        const el = document.createElement('div');
-        el.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
-        if (level === 'error') el.style.color = '#ffb4b4';
-        logEl.prepend(el);
-      }
-
-      // Build payload object from form fields
+      // Build payload from inputs
       function buildPayload() {
-        const ipsRaw = ipsEl.value.trim();
-        const ips = ipsRaw ? ipsRaw.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+        const ips = ipsEl.value.trim()
+          ? ipsEl.value
+              .split(',')
+              .map(function(s) {
+                return s.trim();
+              })
+              .filter(Boolean)
+          : [];
         const port = Number(portEl.value) || 0;
         const protocol = protoEl.value || 'ws';
-        const version = Number(versionEl.value) || 1;
         const token = tokenEl.value || '';
         return {
           type: 'openclaw-gateway',
-          version: version,
+          version: 1,
           ips: ips,
           port: port,
           token: token,
@@ -855,21 +602,28 @@
         };
       }
 
-      // Render JSON preview and raw payload textarea
+      // Render JSON preview
       function renderPreview(payload) {
-        const pretty = JSON.stringify(payload, null, 2);
-        jsonPreview.textContent = pretty;
-        // rawPayload textarea may not exist in some builds; guard
-        const rp = document.getElementById('rawPayload');
-        if (rp) rp.value = pretty;
+        jsonPreview.textContent = JSON.stringify(payload, null, 2);
       }
 
-      // Render QR to canvas using embedded encoder
+      // Render QR using embedded encoder and convert to image for download
       function renderQr(payload) {
-        const s = JSON.stringify(payload);
-        qrSizeLabel.textContent = String(qrSize);
-        const q = qrcodeFactory(s);
-        q.drawToCanvas(qrCanvas, qrSize);
+        qrcodeEl.innerHTML = '';
+        // create a canvas and draw QR then append as image
+        const canvas = document.createElement('canvas');
+        canvas.style.display = 'block';
+        canvas.width = 300;
+        canvas.height = 300;
+        const q = qrcodeFactory(JSON.stringify(payload));
+        q.drawToCanvas(canvas, 300);
+        // convert to image for consistent download behavior
+        const img = new Image();
+        img.src = canvas.toDataURL('image/png');
+        img.alt = 'QR Code';
+        img.style.width = '300px';
+        img.style.height = '300px';
+        qrcodeEl.appendChild(img);
       }
 
       // Build button
@@ -877,206 +631,36 @@
         const p = buildPayload();
         renderPreview(p);
         renderQr(p);
-        log('Built QR payload.');
       });
 
-      // Copy JSON to clipboard
+      // Copy JSON
       copyJsonBtn.addEventListener('click', async function() {
         try {
           await navigator.clipboard.writeText(jsonPreview.textContent);
-          log('JSON copied to clipboard.');
+          alert('JSON copied to clipboard');
         } catch (e) {
-          log('Clipboard copy failed: ' + (e && e.message ? e.message : e), 'error');
+          alert('Copy failed');
         }
       });
 
-      // Download QR as PNG
+      // Download QR
       downloadQrBtn.addEventListener('click', function() {
-        try {
-          const url = qrCanvas.toDataURL('image/png');
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'openclaw-gateway.png';
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          log('QR downloaded as PNG.');
-        } catch (e) {
-          log('Download failed: ' + (e && e.message ? e.message : e), 'error');
+        const img = qrcodeEl.querySelector('img');
+        if (!img) {
+          alert('Please build the QR code first');
+          return;
         }
+        const a = document.createElement('a');
+        a.href = img.src;
+        a.download = 'openclaw-gateway.png';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
       });
 
-      // QR size controls
-      increaseQr.addEventListener('click', function() {
-        qrSize = Math.min(1200, qrSize + 50);
-        renderQr(buildPayload());
-      });
-      decreaseQr.addEventListener('click', function() {
-        qrSize = Math.max(120, qrSize - 50);
-        renderQr(buildPayload());
-      });
-
-      // Enable test mode gating: user must type exact phrase
-      enableBtn.addEventListener('click', function() {
-        const v = (enableInput.value || '').trim();
-        if (v === 'I UNDERSTAND') {
-          testModeEnabled = true;
-          enableStatus.textContent = 'Test mode enabled (you must confirm before sending token).';
-          enableStatus.style.color = '#9fffcf';
-          testConnBtn.disabled = false;
-          log('Test mode enabled by user.');
-        } else {
-          testModeEnabled = false;
-          enableStatus.textContent = 'Type "I UNDERSTAND" and click Enable Test Mode to enable.';
-          enableStatus.style.color = '';
-          testConnBtn.disabled = true;
-          log('Enable attempt failed (user did not type required phrase).', 'error');
-        }
-      });
-
-      // WebSocket test with double confirmation and client-side cooldown
-      testConnBtn.addEventListener('click', async function() {
-        if (!testModeEnabled) {
-          log('Test mode not enabled.', 'error');
-          return;
-        }
-        if (ws) {
-          log('WebSocket already open. Close first.', 'error');
-          return;
-        }
-
-        const now = Date.now();
-        if (now - lastTestTs < 30000) {
-          log('Please wait 30s between test attempts.', 'error');
-          return;
-        }
-        if (testAttempts >= 10 && now - lastTestTs < 5 * 60 * 1000) {
-          log('Too many attempts. Wait before retrying.', 'error');
-          return;
-        }
-
-        const host = testHost.value.trim();
-        const port = testPort.value.trim();
-        let proto = testProto.value;
-
-        if (!host || !port) {
-          log('Host and port required for test.', 'error');
-          return;
-        }
-
-        // Force wss on HTTPS pages to avoid mixed content
-        if (location.protocol === 'https:' && proto === 'ws') {
-          proto = 'wss';
-          testProto.value = 'wss';
-          log('Page served over HTTPS: forcing wss for the test.');
-        }
-
-        const url = proto + '://' + host + ':' + port + '/';
-
-        // First confirmation: show payload summary (without token) and ask to proceed
-        const payload = buildPayload();
-        const confirmMsg =
-          'You are about to send the token to: ' +
-          url +
-          '\n\nPayload preview (token omitted):\n' +
-          JSON.stringify(
-            {
-              type: payload.type,
-              ips: payload.ips,
-              port: payload.port,
-              protocol: payload.protocol
-            },
-            null,
-            2
-          ) +
-          '\n\nProceed?';
-        if (!confirm(confirmMsg)) {
-          log('User cancelled the test.');
-          return;
-        }
-
-        // Second confirmation: require typing the host exactly
-        const hostConfirm = prompt('Type the host exactly to confirm and send the token:', host);
-        if (hostConfirm !== host) {
-          log('Host confirmation failed. Aborting.', 'error');
-          return;
-        }
-
-        // Open WebSocket and send connect message with token
-        log('Opening WebSocket to ' + url);
-        try {
-          ws = new WebSocket(url);
-        } catch (e) {
-          log('WebSocket constructor failed: ' + (e && e.message ? e.message : e), 'error');
-          ws = null;
-          return;
-        }
-        testConnBtn.disabled = true;
-        closeConnBtn.disabled = false;
-
-        ws.addEventListener('open', function() {
-          log('WebSocket open.');
-          const connectMsg = {
-            type: 'connect',
-            auth: { token: payload.token || '' },
-            meta: { from: 'r1-openclaw-qr' }
-          };
-          try {
-            ws.send(JSON.stringify(connectMsg));
-            log('Sent connect message with token (only to the host you specified).');
-          } catch (e) {
-            log('Send failed: ' + (e && e.message ? e.message : e), 'error');
-          }
-        });
-
-        ws.addEventListener('message', function(ev) {
-          log('Received: ' + ev.data);
-        });
-
-        ws.addEventListener('close', function(ev) {
-          log('WebSocket closed (code ' + ev.code + ').');
-          ws = null;
-          testConnBtn.disabled = false;
-          closeConnBtn.disabled = true;
-        });
-
-        ws.addEventListener('error', function(ev) {
-          log('WebSocket error (check host/port/protocol).', 'error');
-        });
-
-        // Safety: auto-close after 20s
-        setTimeout(function() {
-          if (ws) {
-            try {
-              ws.close();
-            } catch (e) {}
-          }
-        }, 20000);
-
-        // Update rate limiting state
-        lastTestTs = Date.now();
-        testAttempts++;
-      });
-
-      // Close button
-      closeConnBtn.addEventListener('click', function() {
-        if (ws) {
-          try {
-            ws.close();
-          } catch (e) {}
-        }
-      });
-
-      // Initialize UI with defaults
+      // Initialize
       (function init() {
-        const initial = {
-          type: 'openclaw-gateway',
-          version: 1,
-          ips: [],
-          port: Number(portEl.value) || 8080,
-          token: '',
-          protocol: protoEl.value || 'ws'
-        };
+        const initial = buildPayload();
         renderPreview(initial);
         renderQr(initial);
       })();
@@ -1088,6 +672,14 @@
           buildBtn.click();
         }
       });
+
+      // Set websocket.html link to use current domain
+      (function() {
+        const link = document.getElementById('websocketLink');
+        if (link) {
+          link.href = location.origin + location.pathname.replace(/[^/]*$/, '') + 'websocket.html';
+        }
+      })();
     })();
   </script>
 </body>

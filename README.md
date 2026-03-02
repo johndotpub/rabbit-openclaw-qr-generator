@@ -1,7 +1,7 @@
 # 🐰 Rabbit R1 OpenClaw QR Generator 🦞
 
 [![Test index.html](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-index.yml/badge.svg)](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-index.yml)
-[![Test localhost.html](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-localhost.yml/badge.svg)](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-localhost.yml)
+[![Test websocket.html](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-websocket.yml/badge.svg)](https://github.com/johndotpub/rabbit-openclaw-qr-generator/actions/workflows/test-websocket.yml)
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-bd93f9.svg)](https://unlicense.org/)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Gateway-50fa7b.svg)](https://forum.rabbitcommunity.tech/t/how-to-connect-your-r1-to-openclaw-formerly-moltbot-clawdbot/15646)
 [![Rabbit R1](https://img.shields.io/badge/Rabbit-R1-ff79c6.svg)](https://rabbit.tech)
@@ -25,19 +25,19 @@ Based on the [R1 OpenClaw connection guide](https://forum.rabbitcommunity.tech/t
 
 This repo intentionally ships as static HTML with a **Dracula**-inspired dark theme. There are two builds with different safety profiles:
 
-### 🦞 `localhost.html` — read-only (recommended for public hosting)
+### 🐰 `index.html` — safe build (recommended for public hosting)
 
 - Generates JSON + QR locally
-- **No network test features** (cannot open WebSockets)
-- Best choice for GitHub Pages / sharing a link broadly
-- 🐰 Safe to share with anyone
+- **No network features** (cannot open WebSockets)
+- The default page at the root URL — perfect for GitHub Pages
+- 🦞 Safe to share with anyone
 
-### 🐰 `index.html` — advanced (includes optional WebSocket test)
+### 🔧 `websocket.html` — advanced (includes optional WebSocket test)
 
-- Same generator features as `localhost.html`
+- Same generator features as `index.html`
 - Adds an **opt-in WebSocket connection test** intended for local/controlled use
 - The UI gates the test behind explicit confirmation so it's harder to send tokens by accident
-- 🔧 Best for developers and advanced users
+- 🐰 Best for developers and advanced users
 
 ---
 
@@ -53,8 +53,8 @@ The payload includes your `token`. If you share any of the following, you are ef
 
 ### 🏠 Hosting guidance
 
-- If you're publishing on GitHub Pages: **prefer `localhost.html`** 🦞
-- If you use `index.html`: consider hosting it **behind authentication** and avoid distributing a public link 🔐
+- For GitHub Pages or public hosting: just use **`index.html`** (the default) 🐰
+- If you need WebSocket testing: use **`websocket.html`** and consider hosting it **behind authentication** 🔐
 
 ---
 
@@ -83,7 +83,7 @@ Field notes:
 
 ## 🚀 How to use
 
-1. Open **`localhost.html`** (recommended) or **`index.html`** in a modern browser
+1. Open **`index.html`** (recommended) or **`websocket.html`** (advanced) in a modern browser
 2. Enter IP(s), port, protocol, and token
 3. Click **🔨 Build QR**
 4. Scan the QR to import, or click **📋 Copy JSON**
@@ -91,7 +91,7 @@ Field notes:
 
 ---
 
-## 🧪 WebSocket test mode (only in `index.html`)
+## 🧪 WebSocket test mode (only in `websocket.html`)
 
 The WebSocket test is meant to verify connectivity to a host you specify.
 
@@ -105,18 +105,16 @@ Built-in guardrails:
 
 ---
 
-## 🌐 Publish on GitHub Pages (recommended: read-only build)
+## 🌐 Publish on GitHub Pages
 
 1. In GitHub: **Settings → Pages**
 2. Choose **Deploy from a branch**
 3. Select:
    - Branch: `main`
    - Folder: `/ (root)`
-4. Your read-only page will be available at:
+4. Your safe QR generator will be live at the root URL — `index.html` loads by default.
 
-`https://johndotpub.github.io/rabbit-openclaw-qr-generator/localhost.html`
-
-If you want the safe build to load at the default repo Pages URL (`/`), rename `localhost.html` to `index.html` (only do this if you don't need the advanced test build).
+The advanced WebSocket test page will be at `/websocket.html` for those who need it.
 
 ---
 

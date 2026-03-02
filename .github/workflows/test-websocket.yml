@@ -1,4 +1,4 @@
-name: Test localhost.html
+name: Test websocket.html
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-localhost-html:
+  test-websocket-html:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,9 +27,9 @@ jobs:
           npm install --save-dev @playwright/test
           npx playwright install chromium
 
-      - name: Test localhost.html QR generation
+      - name: Test websocket.html QR generation
         run: |
-          cat > test-localhost.mjs << 'EOF'
+          cat > test-websocket.mjs << 'EOF'
           import { chromium } from '@playwright/test';
           import { createServer } from 'http';
           import { readFileSync } from 'fs';
@@ -39,7 +39,7 @@ jobs:
           const __dirname = dirname(fileURLToPath(import.meta.url));
 
           const server = createServer((req, res) => {
-            const filePath = req.url === '/' ? 'localhost.html' : req.url.slice(1);
+            const filePath = req.url === '/' ? 'websocket.html' : req.url.slice(1);
             const fullPath = join(__dirname, filePath);
             try {
               const data = readFileSync(fullPath);
@@ -57,26 +57,25 @@ jobs:
             }
           });
 
-          server.listen(8766);
-          console.log('Test server running on http://localhost:8766\n');
+          server.listen(8765);
+          console.log('Test server running on http://localhost:8765\n');
 
-          // localhost.html has no version field - version is hardcoded to 1
           const testCases = [
             {
               name: 'Small payload (~60 chars)',
-              data: { ips: '10.0.0.1', port: '8080', token: 'test', protocol: 'ws' }
+              data: { ips: '10.0.0.1', port: '8080', token: 'test', protocol: 'ws', version: '1' }
             },
             {
               name: 'Typical payload (~128 chars)',
-              data: { ips: '192.168.1.10,10.0.0.5', port: '8080', token: 'test-token-12345', protocol: 'ws' }
+              data: { ips: '192.168.1.10,10.0.0.5', port: '8080', token: 'test-token-12345', protocol: 'ws', version: '1' }
             },
             {
               name: 'Large payload (~180 chars)',
-              data: { ips: '192.168.1.10,192.168.1.11,192.168.1.12', port: '8080', token: 'this-is-a-very-long-token-for-testing-purposes-123456789', protocol: 'wss' }
+              data: { ips: '192.168.1.10,192.168.1.11,192.168.1.12', port: '8080', token: 'this-is-a-very-long-token-for-testing-purposes-123456789', protocol: 'wss', version: '1' }
             },
             {
               name: 'Special characters in token',
-              data: { ips: '127.0.0.1', port: '3000', token: 'token_with-special.chars@123', protocol: 'ws' }
+              data: { ips: '127.0.0.1', port: '3000', token: 'token_with-special.chars@123', protocol: 'ws', version: '1' }
             }
           ];
 
@@ -84,7 +83,7 @@ jobs:
           const context = await browser.newContext();
           const page = await context.newPage();
 
-          await page.goto('http://localhost:8766/localhost.html');
+          await page.goto('http://localhost:8765/websocket.html');
           await page.waitForTimeout(1000);
 
           let passed = 0;
@@ -98,16 +97,21 @@ jobs:
               await page.fill('#port', testCase.data.port);
               await page.fill('#token', testCase.data.token);
               await page.selectOption('#protocol', testCase.data.protocol);
+              await page.fill('#version', testCase.data.version);
 
               await page.click('button:has-text("Build QR")');
               await page.waitForTimeout(500);
 
-              // localhost.html renders QR as img inside #qrcode div
+              // websocket.html renders QR on canvas#qr
               const hasQR = await page.evaluate(() => {
-                const qrcodeEl = document.getElementById('qrcode');
-                if (!qrcodeEl) return false;
-                const img = qrcodeEl.querySelector('img');
-                return img && img.src && img.src.startsWith('data:image/png');
+                const canvas = document.getElementById('qr');
+                if (!canvas) return false;
+                const ctx = canvas.getContext('2d');
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < imageData.data.length; i += 4) {
+                  if (imageData.data[i] < 128 && imageData.data[i+1] < 128 && imageData.data[i+2] < 128) return true;
+                }
+                return false;
               });
 
               const jsonText = await page.textContent('#jsonPreview');
@@ -116,7 +120,7 @@ jobs:
               const expectedIps = testCase.data.ips.split(',').map(ip => ip.trim());
               const isValid =
                 json.type === 'openclaw-gateway' &&
-                json.version === 1 &&
+                json.version === parseInt(testCase.data.version) &&
                 JSON.stringify(json.ips) === JSON.stringify(expectedIps) &&
                 json.port === parseInt(testCase.data.port) &&
                 json.token === testCase.data.token &&
@@ -147,4 +151,4 @@ jobs:
           process.exit(failed > 0 ? 1 : 0);
           EOF
 
-          node test-localhost.mjs
+          node test-websocket.mjs
