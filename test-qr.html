@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Generation Test</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #071025;
+      color: #e6eef6;
+    }
+    .test-case {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+    }
+    .test-case.pass {
+      border-color: #0a0;
+    }
+    .test-case.fail {
+      border-color: #a00;
+    }
+    .status {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .pass .status {
+      color: #0f0;
+    }
+    .fail .status {
+      color: #f00;
+    }
+    canvas {
+      background: white;
+      margin: 10px 0;
+      border: 2px solid #666;
+    }
+    code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Code Generation Tests</h1>
+  <div id="results"></div>
+  
+  <script>
+    // Extract QR code functions from index.html by loading it in an iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = 'index.html';
+    document.body.appendChild(iframe);
+    
+    iframe.onload = function() {
+      const win = iframe.contentWindow;
+      const qrcodeFactory = win.qrcodeFactory;
+      
+      if (!qrcodeFactory) {
+        document.getElementById('results').innerHTML = '<p style="color:red">Failed to load QR code functions from index.html</p>';
+        return;
+      }
+      
+      const testCases = [
+        {
+          name: 'Small payload (~50 chars)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['10.0.0.1'],
+            port: 8080,
+            token: 'test',
+            protocol: 'ws'
+          })
+        },
+        {
+          name: 'Typical payload (~128 chars)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['192.168.1.10', '10.0.0.5'],
+            port: 8080,
+            token: 'test-token-12345',
+            protocol: 'ws'
+          })
+        },
+        {
+          name: 'Large payload (~180 chars)',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['192.168.1.10', '192.168.1.11', '192.168.1.12'],
+            port: 8080,
+            token: 'this-is-a-very-long-token-for-testing-purposes-123456789',
+            protocol: 'wss'
+          })
+        },
+        {
+          name: 'Single IP',
+          data: JSON.stringify({
+            type: 'openclaw-gateway',
+            version: 1,
+            ips: ['127.0.0.1'],
+            port: 3000,
+            token: 'abc',
+            protocol: 'tcp'
+          })
+        }
+      ];
+      
+      const resultsDiv = document.getElementById('results');
+      let passed = 0;
+      let failed = 0;
+      
+      testCases.forEach(testCase => {
+        const div = document.createElement('div');
+        div.className = 'test-case';
+        
+        const statusDiv = document.createElement('div');
+        statusDiv.className = 'status';
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.innerHTML = `<strong>${testCase.name}</strong>`;
+        
+        const sizeDiv = document.createElement('div');
+        sizeDiv.textContent = `Payload size: ${testCase.data.length} characters`;
+        
+        div.appendChild(statusDiv);
+        div.appendChild(nameDiv);
+        div.appendChild(sizeDiv);
+        
+        try {
+          const canvas = document.createElement('canvas');
+          const qr = qrcodeFactory(testCase.data);
+          qr.drawToCanvas(canvas, 200);
+          
+          // Check if canvas has content (not all white)
+          const ctx = canvas.getContext('2d');
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let hasBlackPixels = false;
+          for (let i = 0; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] < 128 && imageData.data[i+1] < 128 && imageData.data[i+2] < 128) {
+              hasBlackPixels = true;
+              break;
+            }
+          }
+          
+          if (hasBlackPixels) {
+            div.className += ' pass';
+            statusDiv.textContent = '✓ PASS';
+            div.appendChild(canvas);
+            passed++;
+          } else {
+            div.className += ' fail';
+            statusDiv.textContent = '✗ FAIL - No QR code generated';
+            failed++;
+          }
+        } catch (error) {
+          div.className += ' fail';
+          statusDiv.textContent = '✗ FAIL';
+          const errorDiv = document.createElement('div');
+          errorDiv.innerHTML = `<code>Error: ${error.message}</code>`;
+          div.appendChild(errorDiv);
+          failed++;
+        }
+        
+        resultsDiv.appendChild(div);
+      });
+      
+      const summaryDiv = document.createElement('div');
+      summaryDiv.style.marginTop = '30px';
+      summaryDiv.style.padding = '15px';
+      summaryDiv.style.background = 'rgba(255,255,255,0.05)';
+      summaryDiv.style.borderRadius = '8px';
+      summaryDiv.innerHTML = `
+        <h2>Test Summary</h2>
+        <p><strong>Passed:</strong> ${passed} / ${testCases.length}</p>
+        <p><strong>Failed:</strong> ${failed} / ${testCases.length}</p>
+      `;
+      resultsDiv.appendChild(summaryDiv);
+    };
+  </script>
+</body>
+</html>
