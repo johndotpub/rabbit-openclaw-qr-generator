@@ -105,30 +105,11 @@ Built-in guardrails:
 
 ---
 
-## 🌐 Publish on GitHub Pages
+## Project Availability
 
-1. In GitHub: **Settings → Pages**
-2. Choose **Deploy from a branch**
-3. Select:
-   - Branch: `main`
-   - Folder: `/ (root)`
-4. Your safe QR generator will be live at the root URL — `index.html` loads by default.
+- Websocket Testing Enabled:  https://claw.rly.wtf
+- Websocket Testing Disabled: https://claw.rly.wtf/localhost.html
 
-The advanced WebSocket test page will be at `/websocket.html` for those who need it.
-
----
-
-## 🧑‍💻 Development
-
-This project is intentionally minimal. `package.json` exists for optional local lint scripts and test dependencies.
-
-### Running tests locally
-
-```bash
-npm install
-npx playwright install chromium
-# Tests run automatically in CI via GitHub Actions
-```
 
 ---
 
@@ -143,4 +124,4 @@ The UI uses a **Dracula**-inspired color scheme:
 
 ## 📜 License
 
-Released under **The Unlicense** (public domain) 🐰🦞
+Released under **The Unlicense** (public domain).
